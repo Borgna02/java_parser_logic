@@ -4,7 +4,6 @@ import Implementazione.Corpo;
 import Implementazione.Grammatica;
 import Implementazione.ParserTopDown;
 import Implementazione.ParserUtility;
-import Implementazione.Produzione;
 
 class GrammaticaInventata {
         public static void main(String[] args) {

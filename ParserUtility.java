@@ -231,11 +231,9 @@ public final class ParserUtility {
 
                 // Passo 4: se la first della stringa dopo il terminale contiene epsilon,
                 // devo rimuoverlo per aggiungere gli altri terminali. Inoltre, devo aggiungere
-                // Follow(Testa)
+                // Follow(Testa) se è diversa dal non terminale
                 if (firstBeta.contains(epsilon)) {
                     firstBeta.remove(this.epsilon);
-                    // TODO qui può capitare che torna a calcolare la follow del simbolo di partenza
-                    // TODO implementare metodo di controllo della ricorsione anche nella follow
                     if(!produzione.getTesta().equals(nonTerminale))
                         result.addAll(this.getFollow(produzione.getTesta().toString()));
                 }
