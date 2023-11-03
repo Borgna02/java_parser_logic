@@ -108,8 +108,10 @@ public class ParserTopDown {
             LinkedHashSet<Terminale> firstAlpha = this.parserUtility.getFirst(produzione.getCorpo().toStrings());
             for (Terminale terminale : firstAlpha) {
                 if (!terminale.equals(this.epsilon)) {
-                    if (parsingTable.get(new TopDownIndice(terminale, testa)) != null) {
-                        throw new Exception("La grammatica ha conflitti, impossibile eseguire il parsing");
+                    if (parsingTable.get(new TopDownIndice(terminale, testa)) != null
+                            && !parsingTable.get(new TopDownIndice(terminale, testa)).equals(produzione)) {
+                        throw new Exception("La grammatica ha conflitti nella cella " + terminale + ";" + testa
+                                + ", impossibile eseguire il parsing");
                     }
                     parsingTable.put(new TopDownIndice(terminale, testa), produzione);
                 }
@@ -120,8 +122,11 @@ public class ParserTopDown {
                 LinkedHashSet<Terminale> followTesta = this.parserUtility.getFollow(testa.toString());
                 for (Terminale terminale : followTesta) {
                     if (!terminale.equals(this.parserUtility.FINESTRINGA)) {
-                        if (parsingTable.get(new TopDownIndice(terminale, testa)) != null) {
-                            throw new Exception("La grammatica ha conflitti, impossibile eseguire il parsing");
+                        System.out.println("Contenuto attuale: " + parsingTable.get(new TopDownIndice(terminale, testa)) + " e contenuto da inserire " + produzione );
+                        if (parsingTable.get(new TopDownIndice(terminale, testa)) != null
+                                && !parsingTable.get(new TopDownIndice(terminale, testa)).equals(produzione)) {
+                            throw new Exception("La grammatica ha conflitti nella cella " + terminale + ";" + testa
+                                    + ", impossibile eseguire il parsing");
                         }
                         parsingTable.put(new TopDownIndice(terminale, testa), produzione);
                     }
@@ -129,8 +134,11 @@ public class ParserTopDown {
                 // Se epsilon in First(alpha) e FINESTRINGA in Follow(A), inserisco A -> alpha
                 // in M[A,FINESTRINGA]
                 if (followTesta.contains(this.parserUtility.FINESTRINGA)) {
-                    if (parsingTable.get(new TopDownIndice(this.parserUtility.FINESTRINGA, testa)) != null) {
-                        throw new Exception("La grammatica ha conflitti, impossibile eseguire il parsing");
+                    if (parsingTable.get(new TopDownIndice(this.parserUtility.FINESTRINGA, testa)) != null
+                            && !parsingTable.get(new TopDownIndice(this.parserUtility.FINESTRINGA, testa))
+                                    .equals(produzione)) {
+                        throw new Exception("La grammatica ha conflitti nella cella " + this.parserUtility.FINESTRINGA
+                                + ";" + testa + ", impossibile eseguire il parsing");
                     }
                     parsingTable.put(new TopDownIndice(this.parserUtility.FINESTRINGA, testa), produzione);
                 }

@@ -4,6 +4,7 @@ import Implementazione.Corpo;
 import Implementazione.Grammatica;
 import Implementazione.ParserTopDown;
 import Implementazione.ParserUtility;
+import Implementazione.Produzione;
 
 class GrammaticaInventata {
         public static void main(String[] args) {
@@ -42,13 +43,15 @@ class GrammaticaInventata {
                 
                 parserUtility = new ParserUtility(grammatica);
                 System.out.println(grammatica);
-                System.out.println(parserUtility.getFollow("A"));
-                // parserTopDown = new ParserTopDown(grammatica);
-                // try {
-                //         System.out.println(parserTopDown.getParsingTableToString());
-                // } catch (Exception e) {
-                //         System.out.println(e.getMessage());
-                // }
+                System.out.println(parserUtility.firstFollowTable());
+
+             
+                parserTopDown = new ParserTopDown(grammatica);
+                try {
+                        System.out.println(parserTopDown.getParsingTableToString());
+                } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                }
                 
 
         }

@@ -193,6 +193,7 @@ public class Grammatica {
                 }
             }
             if (isRecursive) {
+                isRecursive = false;
                 modified = true;
                 // Rimuovo le ricorsioni immediate per quel non terminale
                 this.produzioni.removeAll(produzioniByNonTerminale);

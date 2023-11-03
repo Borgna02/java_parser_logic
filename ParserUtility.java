@@ -106,6 +106,7 @@ public final class ParserUtility {
             while (simboliIterator.hasNext()) {
                 LinkedHashSet<Terminale> localFirst = getFirst(simboliIterator.next().toString());
                 if (!localFirst.contains(this.epsilon)) {
+                    first.addAll(localFirst);
                     break;
                 }
             }
@@ -235,7 +236,8 @@ public final class ParserUtility {
                     firstBeta.remove(this.epsilon);
                     // TODO qui può capitare che torna a calcolare la follow del simbolo di partenza
                     // TODO implementare metodo di controllo della ricorsione anche nella follow
-                    result.addAll(this.getFollow(produzione.getTesta().toString()));
+                    if(!produzione.getTesta().equals(nonTerminale))
+                        result.addAll(this.getFollow(produzione.getTesta().toString()));
                 }
                 // Passo 2: se la first della stringa dopo il terminale non contiene epsilon, la
                 // inserisco
