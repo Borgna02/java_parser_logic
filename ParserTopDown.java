@@ -140,7 +140,7 @@ public class ParserTopDown {
         return parsingTable;
     }
 
-    public String getParsingTableToString() {
+    public String getParsingTableToString() throws Exception {
         LinkedHashMap<TopDownIndice, Produzione> parsingTable;
         try {
             parsingTable = getParsingTable();
@@ -211,8 +211,7 @@ public class ParserTopDown {
 
             return result.toString();
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw e;
         }
     }
 

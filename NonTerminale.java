@@ -8,7 +8,7 @@ public class NonTerminale implements Simbolo {
     public NonTerminale(String nonTerminale) throws IllegalArgumentException {
         // L'espressione regolare verifica se l'input è un singolo carattere maiuscolo
         // seguito da zero o un apice
-        Pattern pattern = Pattern.compile("^[A-Z]\\'?$");
+        Pattern pattern = Pattern.compile("^[A-Z]\\'*$");
         Matcher matcher = pattern.matcher(nonTerminale);
 
         if (!matcher.matches())
@@ -18,15 +18,6 @@ public class NonTerminale implements Simbolo {
 
     public String getSimbolo() {
         return nonTerminale;
-    }
-
-    public void setSimbolo(String nonTerminale) throws IllegalArgumentException {
-        Pattern pattern = Pattern.compile("^[A-Z]\\'?$");
-        Matcher matcher = pattern.matcher(nonTerminale);
-
-        if (!matcher.matches())
-            throw new IllegalArgumentException("Input non valido: " + nonTerminale);
-        this.nonTerminale = nonTerminale;
     }
 
     @Override

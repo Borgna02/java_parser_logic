@@ -1,4 +1,6 @@
 package Implementazione;
+
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 
 public class Grammatica {
@@ -30,6 +32,15 @@ public class Grammatica {
                 return obj;
         }
         return null;
+    }
+
+    public void addNonTerminale(String stringa) {
+        NonTerminale newNonTerminale = new NonTerminale(stringa);
+        this.nonTerminali.add(newNonTerminale);
+    }
+
+    public void addNonTerminale(NonTerminale newNonTerminale) {
+        this.nonTerminali.add(newNonTerminale);
     }
 
     public void setNonTerminali(LinkedHashSet<NonTerminale> nonTerminali) {
@@ -147,10 +158,6 @@ public class Grammatica {
         this.produzioni = produzioni;
     }
 
-    public void addProduzione(Produzione produzione) {
-        this.produzioni.add(produzione);
-    }
-
     public void addProduzione(String testa, Corpo corpo) {
         this.produzioni.add(new Produzione(this.getNonTermSeEsiste(testa), corpo));
     }
@@ -167,7 +174,71 @@ public class Grammatica {
 
     @Override
     public String toString() {
-        return "Terminali: " + this.terminali + "\nNon terminali: " + this.nonTerminali + "\nSimboli di partenza: "
+        return "\nTerminali: " + this.terminali + "\nNon terminali: " + this.nonTerminali + "\nSimboli di partenza: "
                 + this.partenza + "\nProduzioni: \n" + this.toStringProduzioni();
+    }
+
+    public boolean makeNonRecursive() {
+        boolean isRecursive = false;
+        boolean modified = false;
+        ArrayList<NonTerminale> terminaliAttuali = new ArrayList<>(this.nonTerminali);
+        for (NonTerminale nonTerminale : terminaliAttuali) {
+            LinkedHashSet<Produzione> produzioniByNonTerminale = new LinkedHashSet<>(
+                    getProduzioniByTesta(nonTerminale));
+            for (Produzione produzione : produzioniByNonTerminale) {
+                // Se il nonTerminale causa una ricorsione immediata
+                if (produzione.getTesta().equals(produzione.getCorpo().getSimboli().get(0))) {
+                    isRecursive = true;
+                    break;
+                }
+            }
+            if (isRecursive) {
+                modified = true;
+                // Rimuovo le ricorsioni immediate per quel non terminale
+                this.produzioni.removeAll(produzioniByNonTerminale);
+                NonTerminale testa = nonTerminale;
+                // Se non l'ho già creato, creo un nuovo non terminale che aggiunge un apice
+                String newNonTerminaleString = testa.toString() + '\'';
+                NonTerminale newNonTerminale = this.getNonTermSeEsiste(newNonTerminaleString);
+                if(newNonTerminale == null) {
+                    newNonTerminale = new NonTerminale(newNonTerminaleString);
+                    this.addNonTerminale(newNonTerminale);
+                }
+                this.produzioni.add(new Produzione(newNonTerminale, new Corpo(this.getTermSeEsiste("eps"))));
+                
+                for (Produzione produzione : produzioniByNonTerminale) {
+                    Corpo corpo = produzione.getCorpo();
+
+                    // Caso 1: se A -> Aalpha
+                    if (testa.equals(corpo.getSimboli().get(0))) {
+                        // Creo il nuovo corpo della forma A' -> alphaA'
+                        ArrayList<Simbolo> newCorpo = new ArrayList<Simbolo>(corpo.getSimboli());
+                        newCorpo.remove(0);
+                        newCorpo.add(newNonTerminale);
+                        Produzione newProduzione = new Produzione(newNonTerminale, new Corpo(newCorpo));
+                        this.produzioni.add(newProduzione);
+                    }
+                    // Caso 2: se A -> beta
+                    else {
+                        // Se la prodizione ha il corpo uguale a epsilon la ignoro
+                        if(!corpo.getSimboli().contains(this.getTermSeEsiste("eps"))) {
+
+                            // Creo il nuovo corpo della forma A -> betaA'
+                            ArrayList<Simbolo> newCorpo = new ArrayList<Simbolo>(corpo.getSimboli());
+                            newCorpo.add(newNonTerminale);
+                            Produzione newProduzione = new Produzione(testa, new Corpo(newCorpo));
+                            this.produzioni.add(newProduzione);
+                        }
+                    }
+                }
+
+            }
+
+        }
+
+        if (modified) {
+            System.out.println("La grammatica è ricorsiva, modifico...");
+        }
+        return modified;
     }
 }

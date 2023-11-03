@@ -28,9 +28,16 @@ public class GrammaticaTot14_02_22 {
         grammatica.addProduzione("F", new Corpo(grammatica, "b"));
 
         System.out.println(grammatica);
+        grammatica.makeNonRecursive();
+        System.out.println(grammatica);
         ParserUtility parserUtility = new ParserUtility(grammatica);
         System.out.println(parserUtility.firstFollowTable());
         ParserTopDown parserTopDown = new ParserTopDown(grammatica);
-        System.out.println(parserTopDown.getParsingTableToString());
+        try {
+            System.out.println(parserTopDown.getParsingTableToString());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        
     }
 }

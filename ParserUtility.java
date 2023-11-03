@@ -100,56 +100,28 @@ public final class ParserUtility {
         Iterator<Simbolo> simboliIterator = simboli.iterator();
         Iterator<Simbolo> inizialeIterator = iniziale.iterator();
 
-        // boolean uguali = false;
-        // TODO IDEA: rimuovo dai due set i simboli annullabili (tali che la first
-        // TODO contiene eps), quindi confronto il primo simbolo che trovo. Se è uguale,
-        // TODO allora ignoro
         if (simboli.size() != 1 && iniziale.size() != 1) {
 
+            // Posiziono l'iteratore sul primo simbolo non annullabile che trovo in simboli
             while (simboliIterator.hasNext()) {
                 LinkedHashSet<Terminale> localFirst = getFirst(simboliIterator.next().toString());
                 if (!localFirst.contains(this.epsilon)) {
-                    first.addAll(localFirst);
                     break;
                 }
             }
+            // Posiziono l'iteratore sul primo simbolo non annullabile che trovo in iniziale
             while (inizialeIterator.hasNext()) {
                 if (!getFirst(inizialeIterator.next().toString()).contains(this.epsilon)) {
                     break;
                 }
             }
         }
+        // Se i due simboli non annullabili sono uguali, allora vuol dire che posso
+        // interrompere la ricorsione, altrimenti entrerei in un ciclo infinito
         if (inizialeIterator.hasNext() && simboliIterator.hasNext()
                 && inizialeIterator.next().equals(simboliIterator.next())) {
             return first;
         }
-
-        // if (simboli.size() != iniziale.size()) {
-        // uguali = false;
-        // }
-        // se sono lunghi uguali
-        // TODO non posso ignorare totalmente la produzione solo quando ciò che sto per
-        // TODO calcolare ed il simbolo iniziale sono totalmente uguali.
-
-        // else {
-        // while (simboliIterator.hasNext() && inizialeIterator.hasNext()) {
-        // // controllo simbolo per simbolo se sono uguali
-        // Simbolo simbolo = simboliIterator.next();
-        // Simbolo simbIniziale = inizialeIterator.next();
-        // if (!simbolo.equals(simbIniziale) /*
-        // * && (getFirst(simbolo.toString())
-        // * .contains(this.epsilon) ==
-        // * getFirst(simbIniziale.toString()).contains(this.epsilon))
-        // */) {
-        // uguali = false;
-        // break;
-        // }
-        // }
-        // }
-        // se sono uguali non effettuo il calcolo
-        // if (uguali) {
-        // return first;
-        // }
 
         if (simboli.size() == 1) {
             // 1: se l'argomento è un terminale, allora la first è uguale al terminale
@@ -261,6 +233,8 @@ public final class ParserUtility {
                 // Follow(Testa)
                 if (firstBeta.contains(epsilon)) {
                     firstBeta.remove(this.epsilon);
+                    // TODO qui può capitare che torna a calcolare la follow del simbolo di partenza
+                    // TODO implementare metodo di controllo della ricorsione anche nella follow
                     result.addAll(this.getFollow(produzione.getTesta().toString()));
                 }
                 // Passo 2: se la first della stringa dopo il terminale non contiene epsilon, la

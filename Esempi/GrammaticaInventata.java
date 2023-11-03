@@ -32,7 +32,24 @@ class GrammaticaInventata {
                 ParserUtility parserUtility = new ParserUtility(grammatica);
                 System.out.println(parserUtility.firstFollowTable());
                 ParserTopDown parserTopDown = new ParserTopDown(grammatica);
-                System.out.println(parserTopDown.getParsingTableToString());
+                try {
+                        System.out.println(parserTopDown.getParsingTableToString());
+                } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                }
+                
+                grammatica.makeNonRecursive();
+                
+                parserUtility = new ParserUtility(grammatica);
+                System.out.println(grammatica);
+                System.out.println(parserUtility.getFollow("A"));
+                // parserTopDown = new ParserTopDown(grammatica);
+                // try {
+                //         System.out.println(parserTopDown.getParsingTableToString());
+                // } catch (Exception e) {
+                //         System.out.println(e.getMessage());
+                // }
+                
 
         }
 }
