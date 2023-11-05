@@ -190,6 +190,59 @@ public final class ParserUtility {
         return first;
     }
 
+    public LinkedHashSet<Terminale> calculateFollow(NonTerminale iniziale, NonTerminale nonTerminale) {
+        LinkedHashSet<Terminale> result = new LinkedHashSet<Terminale>();
+
+        if (this.grammatica.getPartenza().equals(nonTerminale)) {
+            result.add(this.FINESTRINGA);
+        }
+
+        for (Produzione produzione : this.grammatica.getProduzioniIfCorpoContains(nonTerminale)) {
+            Corpo corpo = produzione.getCorpo();
+            int nonTerminaleIndex = 0;
+            for (Simbolo simbolo : corpo.getSimboli()) {
+                if (simbolo.equals(nonTerminale)) {
+
+                    List<Simbolo> betaList = corpo.getSimboli().subList(nonTerminaleIndex + 1,
+                            corpo.getSimboli().size());
+
+                    // Passo 3: se il terminale è alla fine della stringa ed è diverso dalla testa,
+                    // inserisco Follow(Testa)
+                    if (betaList.isEmpty()) {
+                        if (!nonTerminale.equals(produzione.getTesta()) && !iniziale.equals(produzione.getTesta()))
+                            result.addAll(this.calculateFollow(produzione.getTesta(), produzione.getTesta()));
+                    } else {
+                        // Trasformo beta in array di stringhe per chiamare ParserUtility.getFirst
+                        String[] beta = new String[betaList.size()];
+                        int i = 0;
+                        for (Simbolo simb : betaList) {
+                            beta[i++] = simb.toString();
+                        }
+
+                        // calcolo la first di beta
+                        LinkedHashSet<Terminale> firstBeta = this.getFirst(beta);
+
+                        // Passo 4: se la first della stringa dopo il terminale contiene epsilon,
+                        // devo rimuoverlo per aggiungere gli altri terminali. Inoltre, devo aggiungere
+                        // Follow(Testa) se è diversa dal non terminale
+                        if (firstBeta.contains(epsilon)) {
+                            firstBeta.remove(this.epsilon);
+                            if (!produzione.getTesta().equals(nonTerminale) && !produzione.getTesta().equals(iniziale))
+                                result.addAll(this.calculateFollow(iniziale, produzione.getTesta()));
+                        }
+                        // Passo 2: se la first della stringa dopo il terminale non contiene epsilon, la
+                        // inserisco
+                        result.addAll(firstBeta);
+
+                    }
+                }
+                nonTerminaleIndex++;
+            }
+        }
+
+        return result;
+    }
+
     public LinkedHashSet<Terminale> getFollow(String nonTerminaleString)
             throws IllegalArgumentException {
         NonTerminale nonTerminale;
@@ -198,53 +251,9 @@ public final class ParserUtility {
         } catch (IllegalArgumentException e) {
             throw e;
         }
-        LinkedHashSet<Terminale> result = new LinkedHashSet<Terminale>();
-        // Passo 1: se il non terminale è un simbolo di partenza, inserisco $
-        if (this.grammatica.getPartenza().equals(nonTerminale)) {
-            result.add(this.FINESTRINGA);
-        }
+        
 
-        // Passi 2, 3, 4, trovo le produzioni che contengono nonTerminale nel corpo
-        for (Produzione produzione : this.grammatica.getProduzioniIfCorpoContains(nonTerminale)) {
-            Corpo corpo = produzione.getCorpo();
-            // Salvo l'indice di nonTerminale all'interno del corpo
-            int nonTerminaleIndex = corpo.getSimboli().indexOf(nonTerminale);
-
-            // Separo beta dall'intero corpo
-            List<Simbolo> betaList = corpo.getSimboli().subList(nonTerminaleIndex + 1, corpo.getSimboli().size());
-
-            // Passo 3: se il terminale è alla fine della stringa ed è diverso dalla testa,
-            // inserisco Follow(Testa)
-            if (betaList.isEmpty()) {
-                if (!nonTerminale.equals(produzione.getTesta()))
-                    result.addAll(this.getFollow(produzione.getTesta().toString()));
-            } else {
-                // Trasformo beta in array di stringhe per chiamare ParserUtility.getFirst
-                String[] beta = new String[betaList.size()];
-                int i = 0;
-                for (Simbolo simbolo : betaList) {
-                    beta[i++] = simbolo.toString();
-                }
-
-                // calcolo la first di beta
-                LinkedHashSet<Terminale> firstBeta = this.getFirst(beta);
-
-                // Passo 4: se la first della stringa dopo il terminale contiene epsilon,
-                // devo rimuoverlo per aggiungere gli altri terminali. Inoltre, devo aggiungere
-                // Follow(Testa) se è diversa dal non terminale
-                if (firstBeta.contains(epsilon)) {
-                    firstBeta.remove(this.epsilon);
-                    if(!produzione.getTesta().equals(nonTerminale))
-                        result.addAll(this.getFollow(produzione.getTesta().toString()));
-                }
-                // Passo 2: se la first della stringa dopo il terminale non contiene epsilon, la
-                // inserisco
-                result.addAll(firstBeta);
-
-            }
-        }
-
-        return result;
+        return this.calculateFollow(nonTerminale, nonTerminale);
     }
 
     public String firstFollowTable() {

@@ -1,6 +1,7 @@
 package Implementazione;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 
 public class Grammatica {
@@ -164,17 +165,23 @@ public class Grammatica {
 
     public String toStringProduzioni() {
         String result = "";
-        int i = 0;
-        for (Produzione produzione : this.produzioni) {
-            result += i + ": " + produzione.toString() + "\n";
-            i++;
+        for(NonTerminale nonTerminale : this.nonTerminali) {
+            result += nonTerminale + " -> ";
+            Iterator<Produzione> iterator = this.getProduzioniByTesta(nonTerminale).iterator();
+            while (iterator.hasNext()) {
+                result += iterator.next().getCorpo();
+                if(iterator.hasNext()) {
+                    result += "|";
+                }
+            }
+            result += "\n";
         }
         return result;
     }
 
     @Override
     public String toString() {
-        return "\nTerminali: " + this.terminali + "\nNon terminali: " + this.nonTerminali + "\nSimboli di partenza: "
+        return "\nTerminali: " + this.terminali + "\nNon terminali: " + this.nonTerminali + "\nSimbolo di partenza: "
                 + this.partenza + "\nProduzioni: \n" + this.toStringProduzioni();
     }
 
