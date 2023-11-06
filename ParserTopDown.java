@@ -90,7 +90,7 @@ public class ParserTopDown {
 
     }
 
-    public LinkedHashMap<TopDownIndice, LinkedList<Produzione>> getParsingTable() throws Exception {
+    public LinkedHashMap<TopDownIndice, LinkedList<Produzione>> getParsingTable() {
         LinkedHashMap<TopDownIndice, LinkedList<Produzione>> parsingTable = new LinkedHashMap<>();
 
         for (NonTerminale nonTerminale : grammatica.getNonTerminali()) {
@@ -153,79 +153,77 @@ public class ParserTopDown {
         return parsingTable;
     }
 
-    public String getParsingTableToString() throws Exception {
+    public String getParsingTableToString() {
         LinkedHashMap<TopDownIndice, LinkedList<Produzione>> parsingTable;
-        try {
-            parsingTable = getParsingTable();
 
-            LinkedHashSet<Terminale> terminaliGrammatica = this.grammatica.getTerminali();
-            LinkedHashSet<Terminale> terminali = new LinkedHashSet<>();
+        parsingTable = getParsingTable();
 
-            // Faccio una copia della lista dei terminali, quindi rimuovo epsilon e aggiungo
-            // FINESTRINGA
-            // Devo fare per forza una copia perché sennò vado a modificare la grammatica
-            // originale
-            for (Terminale terminale : terminaliGrammatica) {
-                if (!terminale.equals(this.epsilon)) {
-                    terminali.add(terminale);
-                }
+        LinkedHashSet<Terminale> terminaliGrammatica = this.grammatica.getTerminali();
+        LinkedHashSet<Terminale> terminali = new LinkedHashSet<>();
+
+        // Faccio una copia della lista dei terminali, quindi rimuovo epsilon e aggiungo
+        // FINESTRINGA
+        // Devo fare per forza una copia perché sennò vado a modificare la grammatica
+        // originale
+        for (Terminale terminale : terminaliGrammatica) {
+            if (!terminale.equals(this.epsilon)) {
+                terminali.add(terminale);
             }
-            terminali.add(this.parserUtility.FINESTRINGA);
+        }
+        terminali.add(this.parserUtility.FINESTRINGA);
 
-            LinkedHashSet<NonTerminale> nonTerminali = this.grammatica.getNonTerminali();
-            StringBuilder result = new StringBuilder();
+        LinkedHashSet<NonTerminale> nonTerminali = this.grammatica.getNonTerminali();
+        StringBuilder result = new StringBuilder();
 
-            int numNonTerminali = nonTerminali.size();
-            int numTerminali = terminali.size();
+        int numNonTerminali = nonTerminali.size();
+        int numTerminali = terminali.size();
 
-            String[][] table = new String[numNonTerminali + 1][numTerminali + 1];
+        String[][] table = new String[numNonTerminali + 1][numTerminali + 1];
 
-            // Riempimento delle intestazioni
-            table[0][0] = "";
-            int col = 1;
+        // Riempimento delle intestazioni
+        table[0][0] = "";
+        int col = 1;
+        for (Terminale terminale : terminali) {
+            table[0][col] = terminale.toString();
+            col++;
+        }
+
+        int row = 1;
+        for (NonTerminale nonTerminale : nonTerminali) {
+            table[row][0] = nonTerminale.toString();
+
+            col = 1;
             for (Terminale terminale : terminali) {
-                table[0][col] = terminale.toString();
+                LinkedList<Produzione> produzioni = parsingTable.get(new TopDownIndice(terminale, nonTerminale));
+                if (produzioni.size() == 0) {
+                    table[row][col] = "Err.";
+                } else {
+                    table[row][col] = produzioni.toString();
+                }
                 col++;
             }
-
-            int row = 1;
-            for (NonTerminale nonTerminale : nonTerminali) {
-                table[row][0] = nonTerminale.toString();
-
-                col = 1;
-                for (Terminale terminale : terminali) {
-                    LinkedList<Produzione> produzioni = parsingTable.get(new TopDownIndice(terminale, nonTerminale));
-                    if (produzioni.size() == 0) {
-                        table[row][col] = "Err.";
-                    } else {
-                        table[row][col] = produzioni.toString();
-                    }
-                    col++;
-                }
-                row++;
-            }
-
-            // Costruzione della tabella formattata
-            for (int r = 0; r <= numNonTerminali; r++) {
-                for (int c = 0; c <= numTerminali; c++) {
-                    result.append(table[r][c]);
-                    // formattazione della tabella: aggiungo un numero di spazi dipendente dalla
-
-                    for (int k = table[r][c].length(); k < 30; k++) {
-                        if (k == 25)
-                            result.append("|");
-                        result.append(" ");
-                    }
-                }
-                result.append("\n");
-            }
-
-            result.append("\n");
-
-            return result.toString();
-        } catch (Exception e) {
-            throw e;
+            row++;
         }
+
+        // Costruzione della tabella formattata
+        for (int r = 0; r <= numNonTerminali; r++) {
+            for (int c = 0; c <= numTerminali; c++) {
+                result.append(table[r][c]);
+                // formattazione della tabella: aggiungo un numero di spazi dipendente dalla
+
+                for (int k = table[r][c].length(); k < 30; k++) {
+                    if (k == 25)
+                        result.append("|");
+                    result.append(" ");
+                }
+            }
+            result.append("\n");
+        }
+
+        result.append("\n");
+
+        return result.toString();
+
     }
 
     public List<Produzione> parsing(String... strings) throws Exception {
@@ -289,21 +287,21 @@ public class ParserTopDown {
                 // ! IMPORTANTE: nel caso di conflitti sceglie sempre la produzione inserita per
                 // prima
                 Produzione produzione = parsingTable.get(new TopDownIndice(input.get(0), (NonTerminale) stack.peek()))
-                .get(0);
+                        .get(0);
                 result.add(produzione);
                 stack.pop();
                 LinkedList<Simbolo> simboliCorpo = produzione.getCorpo().getSimboli();
-                
+
                 for (int i = simboliCorpo.size() - 1; i >= 0; i--) {
                     if (!simboliCorpo.get(i).equals(this.epsilon))
-                    stack.push(simboliCorpo.get(i));
+                        stack.push(simboliCorpo.get(i));
                 }
             }
-            
+
             System.out.println("Matched: " + matched + ", Stack: " + stack + ",Input: " + input + "\n");
         }
-        
+
         return result;
-        
+
     }
 }

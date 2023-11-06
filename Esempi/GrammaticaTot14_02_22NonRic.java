@@ -17,7 +17,7 @@ public class GrammaticaTot14_02_22NonRic {
 
         // R' -> pTR'
         grammatica.addProduzione("R'", new Corpo(grammatica, "p", "T", "R'"));
-        
+
         // R' -> eps
         grammatica.addProduzione("R'", new Corpo(grammatica, "eps"));
 
@@ -26,7 +26,7 @@ public class GrammaticaTot14_02_22NonRic {
 
         // T' -> FT'
         grammatica.addProduzione("T'", new Corpo(grammatica, "F", "T'"));
-        
+
         // T' -> eps
         grammatica.addProduzione("T'", new Corpo(grammatica, "eps"));
 
@@ -38,7 +38,7 @@ public class GrammaticaTot14_02_22NonRic {
 
         // F' -> kF'
         grammatica.addProduzione("F'", new Corpo(grammatica, "k", "F'"));
-        
+
         // F' -> kF'
         grammatica.addProduzione("F'", new Corpo(grammatica, "eps"));
 
@@ -46,11 +46,7 @@ public class GrammaticaTot14_02_22NonRic {
         ParserUtility parserUtility = new ParserUtility(grammatica);
         System.out.println(parserUtility.firstFollowTable());
         ParserTopDown parserTopDown = new ParserTopDown(grammatica);
-        try {
-            System.out.println(parserTopDown.getParsingTableToString());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+        System.out.println(parserTopDown.getParsingTableToString());
         try {
             System.out.println(parserTopDown.parsing("a", "k"));
         } catch (Exception e) {

@@ -1,9 +1,7 @@
 package Implementazione.Esempi;
-
-import java.io.PrintWriter;
-
 import Implementazione.Corpo;
 import Implementazione.Grammatica;
+import Implementazione.ParserTopDown;
 import Implementazione.ParserUtility;
 
 public class GrammaticaASsenzaRicStandard {
@@ -30,7 +28,9 @@ public class GrammaticaASsenzaRicStandard {
 
         System.out.println(grammatica);
         ParserUtility parserUtility = new ParserUtility(grammatica);
-        System.out.println(parserUtility.getFirsts());
+        System.out.println(parserUtility.firstFollowTable());
+        ParserTopDown parser = new ParserTopDown(grammatica);
+            System.out.println(parser.getParsingTableToString());
 
     }
 }

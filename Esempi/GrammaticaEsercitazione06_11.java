@@ -28,16 +28,11 @@ public class GrammaticaEsercitazione06_11 {
         ParserUtility parserUtility = new ParserUtility(grammatica);
         System.out.println(parserUtility.firstFollowTable());
         ParserTopDown parser = new ParserTopDown(grammatica);
-        try {
-            System.out.println(parser.getParsingTableToString());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-
+        System.out.println(parser.getParsingTableToString());
         try {
             System.out.println(parser.parsing("a", "b", "c", "b", "a", "b", "a", "b", "a", "c", "a", "b", "a", "b"));
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.getMessage();
         }
     }
 }

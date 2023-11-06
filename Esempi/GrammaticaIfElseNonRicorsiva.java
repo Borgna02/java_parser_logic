@@ -36,11 +36,7 @@ public class GrammaticaIfElseNonRicorsiva {
         ParserUtility parserUtility = new ParserUtility(grammatica);
         System.out.println(parserUtility.firstFollowTable());
         ParserTopDown parserTopDown = new ParserTopDown(grammatica);
-        try {
-            System.out.println(parserTopDown.getParsingTableToString());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+        System.out.println(parserTopDown.getParsingTableToString());
 
     }
 }

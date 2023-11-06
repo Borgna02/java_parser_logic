@@ -34,11 +34,7 @@ public class Grammatica01senzaRicFattorizzata {
         ParserUtility parserUtility = new ParserUtility(grammatica);
         System.out.println(parserUtility.firstFollowTable());
 
-        // ParserTopDown parser = new ParserTopDown(grammatica);
-        // try {
-        //     System.out.println(parser.getParsingTableToString());
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        // }
+        ParserTopDown parser = new ParserTopDown(grammatica);
+        System.out.println(parser.getParsingTableToString());
     }
 }
