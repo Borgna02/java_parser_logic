@@ -1,6 +1,6 @@
 package Implementazione;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
@@ -188,7 +188,7 @@ public class Grammatica {
     public boolean makeNonRecursive() {
         boolean isRecursive = false;
         boolean modified = false;
-        ArrayList<NonTerminale> terminaliAttuali = new ArrayList<>(this.nonTerminali);
+        LinkedList<NonTerminale> terminaliAttuali = new LinkedList<>(this.nonTerminali);
         for (NonTerminale nonTerminale : terminaliAttuali) {
             LinkedHashSet<Produzione> produzioniByNonTerminale = new LinkedHashSet<>(
                     getProduzioniByTesta(nonTerminale));
@@ -220,7 +220,7 @@ public class Grammatica {
                     // Caso 1: se A -> Aalpha
                     if (testa.equals(corpo.getSimboli().get(0))) {
                         // Creo il nuovo corpo della forma A' -> alphaA'
-                        ArrayList<Simbolo> newCorpo = new ArrayList<Simbolo>(corpo.getSimboli());
+                        LinkedList<Simbolo> newCorpo = new LinkedList<Simbolo>(corpo.getSimboli());
                         newCorpo.remove(0);
                         newCorpo.add(newNonTerminale);
                         Produzione newProduzione = new Produzione(newNonTerminale, new Corpo(newCorpo));
@@ -232,7 +232,7 @@ public class Grammatica {
                         if(!corpo.getSimboli().contains(this.getTermSeEsiste("eps"))) {
 
                             // Creo il nuovo corpo della forma A -> betaA'
-                            ArrayList<Simbolo> newCorpo = new ArrayList<Simbolo>(corpo.getSimboli());
+                            LinkedList<Simbolo> newCorpo = new LinkedList<Simbolo>(corpo.getSimboli());
                             newCorpo.add(newNonTerminale);
                             Produzione newProduzione = new Produzione(testa, new Corpo(newCorpo));
                             this.produzioni.add(newProduzione);

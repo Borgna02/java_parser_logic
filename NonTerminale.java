@@ -1,7 +1,9 @@
 package Implementazione;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// TODO rendere terminali e nonTerminali comparable e fare in modo che nelle first e follow siano ordinati secondo ordine alfabetico
 public class NonTerminale implements Simbolo {
     private String nonTerminale;
 
@@ -33,6 +35,5 @@ public class NonTerminale implements Simbolo {
         }
         return false;
     }
-    
 
 }

@@ -1,16 +1,16 @@
 package Implementazione;
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class Corpo {
-    private ArrayList<Simbolo> simboli;
+    private LinkedList<Simbolo> simboli;
 
-    public Corpo(ArrayList<Simbolo> simboli) {
+    public Corpo(LinkedList<Simbolo> simboli) {
         this.simboli = simboli;
     }
 
     // Costruttore con i simboli
     public Corpo(Simbolo... simboli) {
-        this.simboli = new ArrayList<Simbolo>();
+        this.simboli = new LinkedList<Simbolo>();
         for (Simbolo s : simboli) {
             this.simboli.add(s);
         }
@@ -29,7 +29,7 @@ public class Corpo {
      * 
      */
     public Corpo(Grammatica grammatica, String... stringhe) throws IllegalArgumentException {
-        this.simboli = new ArrayList<Simbolo>();
+        this.simboli = new LinkedList<Simbolo>();
         for (String s : stringhe) {
             Simbolo simbolo = grammatica.getTermSeEsiste(s);
             // se s non è un terminale
@@ -47,11 +47,11 @@ public class Corpo {
         }
     }
 
-    public ArrayList<Simbolo> getSimboli() {
+    public LinkedList<Simbolo> getSimboli() {
         return simboli;
     }
 
-    public void setSimboli(ArrayList<Simbolo> simboli) {
+    public void setSimboli(LinkedList<Simbolo> simboli) {
         this.simboli = simboli;
     }
 

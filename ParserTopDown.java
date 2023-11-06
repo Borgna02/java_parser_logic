@@ -1,8 +1,8 @@
 package Implementazione;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -105,7 +105,7 @@ public class ParserTopDown {
             // Per ogni terminale a in First(alpha) diverso da epsilon inserisco A -> alpha
             // in M[A, a]
             NonTerminale testa = produzione.getTesta();
-            LinkedHashSet<Terminale> firstAlpha = this.parserUtility.getFirst(produzione.getCorpo().toStrings());
+            LinkedHashSet<Terminale> firstAlpha = this.parserUtility.calculateStringFirst(produzione.getCorpo().getSimboli());
             for (Terminale terminale : firstAlpha) {
                 if (!terminale.equals(this.epsilon)) {
                     if (parsingTable.get(new TopDownIndice(terminale, testa)) != null
@@ -119,7 +119,7 @@ public class ParserTopDown {
             // Se epsilon in First(alpha), per ogni terminale b in Follow(A)
             // diverso da FINESTRINGA inserisco A -> alpha in M[A, b]
             if (firstAlpha.contains(this.epsilon)) {
-                LinkedHashSet<Terminale> followTesta = this.parserUtility.getFollow(testa.toString());
+                LinkedHashSet<Terminale> followTesta = this.parserUtility.getFollow(testa);
                 for (Terminale terminale : followTesta) {
                     if (!terminale.equals(this.parserUtility.FINESTRINGA)) {
                         System.out.println("Contenuto attuale: " + parsingTable.get(new TopDownIndice(terminale, testa)) + " e contenuto da inserire " + produzione );
@@ -224,8 +224,8 @@ public class ParserTopDown {
     }
 
     public List<Produzione> parsing(String... strings) throws Exception {
-        ArrayList<Terminale> input = new ArrayList<Terminale>();
-        ArrayList<Produzione> result = new ArrayList<Produzione>();
+        LinkedList<Terminale> input = new LinkedList<Terminale>();
+        LinkedList<Produzione> result = new LinkedList<Produzione>();
         final Terminale FINESTRINGA = this.parserUtility.FINESTRINGA;
 
         // Controllo che l'input sia insieme di terminali
@@ -248,7 +248,7 @@ public class ParserTopDown {
         stack.push(this.grammatica.getPartenza());
 
         // Definisco matched per vedere la parte di stringa finora matchata
-        ArrayList<Terminale> matched = new ArrayList<Terminale>();
+        LinkedList<Terminale> matched = new LinkedList<Terminale>();
 
         // Recupero la parsing table
         LinkedHashMap<TopDownIndice, Produzione> parsingTable = this.getParsingTable();
@@ -262,7 +262,7 @@ public class ParserTopDown {
                 // che rimuovo dallo stack è un terminale
                 matched.add((Terminale) stack.pop());
                 List<Terminale> newInput = input.subList(1, input.size() - 1);
-                input = new ArrayList<>();
+                input = new LinkedList<>();
                 for (Terminale terminale : newInput) {
                     input.add(terminale);
                 }
@@ -284,7 +284,7 @@ public class ParserTopDown {
                 Produzione produzione = parsingTable.get(new TopDownIndice(input.get(0), (NonTerminale) stack.peek()));
                 result.add(produzione);
                 stack.pop();
-                ArrayList<Simbolo> simboliCorpo = produzione.getCorpo().getSimboli();
+                LinkedList<Simbolo> simboliCorpo = produzione.getCorpo().getSimboli();
 
                 for (int i = simboliCorpo.size() - 1; i >= 0; i--) {
                     if (!simboliCorpo.get(i).equals(this.epsilon))

@@ -30,14 +30,12 @@ public class Grammatica01senzaRic {
 
         System.out.println(grammatica);
         ParserUtility parserUtility = new ParserUtility(grammatica);
-        System.out.println("Follow: "+ parserUtility.getFollow("S"));
-        System.out.println("Follow: "+ parserUtility.getFollow("A"));
-        System.out.println("Follow: "+ parserUtility.getFollow("A'"));
         System.out.println(parserUtility.firstFollowTable());
 
 
         ParserTopDown parser = new ParserTopDown(grammatica);
         try {
+            // TODO risolvere errore qua 
             System.out.println(parser.getParsingTableToString());
         } catch (Exception e) {
             e.printStackTrace();

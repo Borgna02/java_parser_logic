@@ -1,5 +1,7 @@
 package Implementazione.Esempi;
 
+import java.io.PrintWriter;
+
 import Implementazione.Corpo;
 import Implementazione.Grammatica;
 import Implementazione.ParserUtility;
@@ -28,8 +30,7 @@ public class GrammaticaASsenzaRicStandard {
 
         System.out.println(grammatica);
         ParserUtility parserUtility = new ParserUtility(grammatica);
-        System.out.println(parserUtility.firstFollowTable());
+        System.out.println(parserUtility.getFirsts());
 
     }
 }
-

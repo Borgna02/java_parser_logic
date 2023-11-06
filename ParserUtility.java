@@ -1,54 +1,92 @@
 package Implementazione;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map.Entry;
 
 public final class ParserUtility {
 
     public final Terminale FINESTRINGA = new Terminale("$");
     private Grammatica grammatica;
     private Terminale epsilon;
+    private LinkedHashMap<Simbolo, LinkedHashSet<Terminale>> firsts;
+    private LinkedHashMap<NonTerminale, LinkedHashSet<Terminale>> follows;
 
     public ParserUtility(Grammatica grammatica) {
         this.grammatica = grammatica;
         this.epsilon = grammatica.getTermSeEsiste("eps");
+        this.firsts = calculateFirsts();
+        this.follows = calculateFollows();
     }
 
-    private LinkedHashSet<Simbolo> stringsToSimboli(String... stringhe) {
-        LinkedHashSet<Simbolo> simboli = new LinkedHashSet<Simbolo>();
+    // ! PARTE DI RESTITUIZIONE DELLE FIRST E FOLLOW GIÀ CALCOLATE
+    public LinkedHashMap<Simbolo, LinkedHashSet<Terminale>> getFirsts() {
+        return firsts;
+    }
 
-        for (String s : stringhe) {
-            Simbolo simbolo = this.grammatica.getTermSeEsiste(s);
-            if (simbolo == null) {
-                try {
-                    simbolo = this.grammatica.getNonTermSeEsiste(s);
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("Almeno uno dei simboli indicati non esiste: " + e.getMessage());
-                }
-            }
+    public LinkedHashSet<Terminale> getSymbolFirst(Simbolo simbolo) {
+        return this.firsts.get(simbolo);
+    }
 
-            if (simbolo == null) {
-                throw new IllegalArgumentException("Almeno uno dei simboli indicati non esiste: " + s);
-            }
+    public LinkedHashMap<NonTerminale, LinkedHashSet<Terminale>> getFollows() {
+        return follows;
+    }
 
-            simboli.add(simbolo);
+    public LinkedHashSet<Terminale> getFollow(NonTerminale nonTerminale) {
+        return this.follows.get(nonTerminale);
+    }
+
+    // ! PARTE DI CALCOLO DELLE FIRST
+    private LinkedHashMap<Simbolo, LinkedHashSet<Terminale>> calculateFirsts() {
+        LinkedHashMap<Simbolo, LinkedHashSet<Terminale>> result = new LinkedHashMap<Simbolo, LinkedHashSet<Terminale>>();
+        for (NonTerminale nonTerminale : this.grammatica.getNonTerminali()) {
+            result.put(nonTerminale, calculateSymbolFirst(nonTerminale));
         }
-        return simboli;
+        return result;
     }
 
-    // Metodo pubblico che restituisce la first di una stringa iniziale
-    public LinkedHashSet<Terminale> getFirst(String... stringhe)
+    /**
+     * Passo base per il calcolo della first di un simbolo
+     */
+    private LinkedHashSet<Terminale> calculateSymbolFirst(Simbolo simbolo) {
+        LinkedHashSet<Terminale> first = new LinkedHashSet<Terminale>();
+        // Se il simbolo è un non terminale, calcolo le first di tutti i corpi delle
+        // produzioni
+        if (simbolo instanceof NonTerminale) {
+            LinkedList<Simbolo> iniziale = new LinkedList<>();
+            iniziale.add(simbolo);
+
+            // Cerco le produzioni che hanno il simbolo in testa e non sono ricorsive
+            LinkedHashSet<Produzione> produzioni = this.grammatica.getProduzioniByTestaNonRicorsive(simbolo);
+
+            for (Produzione produzione : produzioni) {
+                // rimuovo epsilon dal risultato se ho ancora simboli da valutare perché quelli
+                // successivi potrebbero essere non annullabili
+                first.addAll(this
+                        .calculateFirstPassoSuccessivo(produzione.getCorpo().getSimboli(), iniziale));
+            }
+        }
+        // Se il simbolo è un terminale, allora ho terminato ed esco
+        else {
+            first.add((Terminale) simbolo);
+        }
+        return first;
+    }
+
+    /**
+     * Passo base per il calcolo della first di una stringa
+     */
+    public LinkedHashSet<Terminale> calculateStringFirst(LinkedList<Simbolo> simboli)
             throws IllegalArgumentException {
 
         // Controllo che l'argomento sia un insieme di simboli dell'alfabeto
-        if (stringhe.length == 0) {
+        if (simboli.size() == 0) {
             throw new IllegalArgumentException("Argomento mancante");
         }
 
-        // Trasformo le stringhe in simboli controllando se esistono nell'alfabeto
-        LinkedHashSet<Simbolo> simboli = stringsToSimboli(stringhe);
         LinkedHashSet<Terminale> first = new LinkedHashSet<>();
 
         // Per calcolare la first di una stringa devo sempre effettuare l'unione di
@@ -67,7 +105,7 @@ public final class ParserUtility {
 
                 for (Produzione produzione : produzioni) {
                     LinkedHashSet<Terminale> firstAttuale = this
-                            .calculateFirst(new LinkedHashSet<>(produzione.getCorpo().getSimboli()), simboli);
+                            .calculateFirstPassoSuccessivo(produzione.getCorpo().getSimboli(), simboli);
                     // rimuovo epsilon dal risultato se ho ancora simboli da valutare perché quelli
                     // successivi potrebbero essere non annullabili
                     if (firstAttuale.contains(this.epsilon) && iterator.hasNext()) {
@@ -93,7 +131,11 @@ public final class ParserUtility {
         return first;
     }
 
-    private LinkedHashSet<Terminale> calculateFirst(LinkedHashSet<Simbolo> simboli, LinkedHashSet<Simbolo> iniziale)
+    /**
+     * Passi successivi per il calcolo della first che evita cicli infiniti
+     */
+    private LinkedHashSet<Terminale> calculateFirstPassoSuccessivo(LinkedList<Simbolo> simboli,
+            LinkedList<Simbolo> iniziale)
             throws IllegalArgumentException {
         LinkedHashSet<Terminale> first = new LinkedHashSet<Terminale>();
 
@@ -104,7 +146,7 @@ public final class ParserUtility {
 
             // Posiziono l'iteratore sul primo simbolo non annullabile che trovo in simboli
             while (simboliIterator.hasNext()) {
-                LinkedHashSet<Terminale> localFirst = getFirst(simboliIterator.next().toString());
+                LinkedHashSet<Terminale> localFirst = getSymbolFirst(simboliIterator.next());
                 if (!localFirst.contains(this.epsilon)) {
                     first.addAll(localFirst);
                     break;
@@ -112,7 +154,7 @@ public final class ParserUtility {
             }
             // Posiziono l'iteratore sul primo simbolo non annullabile che trovo in iniziale
             while (inizialeIterator.hasNext()) {
-                if (!getFirst(inizialeIterator.next().toString()).contains(this.epsilon)) {
+                if (!getSymbolFirst(inizialeIterator.next()).contains(this.epsilon)) {
                     break;
                 }
             }
@@ -146,7 +188,7 @@ public final class ParserUtility {
                         first.add(this.epsilon);
                     // altrimenti aggiungo alla first totale la first del corpo
                     else {
-                        first.addAll(this.calculateFirst(new LinkedHashSet<>(corpo.getSimboli()), iniziale));
+                        first.addAll(this.calculateFirstPassoSuccessivo(corpo.getSimboli(), iniziale));
 
                     }
                 }
@@ -167,9 +209,9 @@ public final class ParserUtility {
             }
             // se ho trovato un non terminale, calcolo la sua first e la aggiungo al
             // risultato, quindi vedo se contiene epsilon
-            LinkedHashSet<Simbolo> newSimbolo = new LinkedHashSet<Simbolo>();
+            LinkedList<Simbolo> newSimbolo = new LinkedList<Simbolo>();
             newSimbolo.add(simbolo);
-            LinkedHashSet<Terminale> first_attuale = this.calculateFirst(newSimbolo, iniziale);
+            LinkedHashSet<Terminale> first_attuale = this.calculateFirstPassoSuccessivo(newSimbolo, iniziale);
             // se non contiene epsilon, allora la variabile non è annullabile ed ho concluso
             if (!first_attuale.contains(this.epsilon)) {
                 first.addAll(first_attuale);
@@ -190,76 +232,116 @@ public final class ParserUtility {
         return first;
     }
 
-    public LinkedHashSet<Terminale> calculateFollow(NonTerminale iniziale, NonTerminale nonTerminale) {
-        LinkedHashSet<Terminale> result = new LinkedHashSet<Terminale>();
+    // ! PARTE DI CALCOLO DELLE FOLLOW
+    private LinkedHashMap<NonTerminale, LinkedHashSet<Terminale>> calculateFollows() {
+        // resultParziali contiene, per ogni nonTerminale, il parziale attuale e la
+        // lista di nonTerminali la cui follow appartiene alla follow del nonTerminale
+        LinkedHashMap<NonTerminale, StrutturaFollow> resultParziali = new LinkedHashMap<>();
+        LinkedHashMap<NonTerminale, LinkedHashSet<Terminale>> result = new LinkedHashMap<>();
 
-        if (this.grammatica.getPartenza().equals(nonTerminale)) {
-            result.add(this.FINESTRINGA);
+        // Inizializzo la mappa aggiungendo come chiavi i terminali della grammatica
+        for (NonTerminale nonTerminale : this.grammatica.getNonTerminali()) {
+            // Devo calcolare quali elementi compongono la follow
+            // Passo 1: se nonTerminale è starting, contiene $ (fatto nel costruttore)
+            StrutturaFollow struttura = new StrutturaFollow(grammatica, nonTerminale, FINESTRINGA);
+
+            // Per ogni produzione il cui corpo contiene nonTerminale:
+            for (Produzione produzione : grammatica.getProduzioniIfCorpoContains(nonTerminale)) {
+                // Se dopo nonTerminale c'è una stringa calcolo la first della stringa e la
+                // aggiungo
+                // Se dopo nonTerminale c'è una stringa annullabile, oppure nonTerminale è
+                // l'ultimo simbolo del corpo, inserisco Follow(testa)
+                Corpo corpo = produzione.getCorpo();
+                int nonTerminaleIndex = 0;
+                for (Simbolo simbolo : corpo.getSimboli()) {
+                    if (simbolo.equals(nonTerminale)) {
+                        LinkedList<Simbolo> betaList = new LinkedList<>(
+                                corpo.getSimboli().subList(nonTerminaleIndex + 1,
+                                        corpo.getSimboli().size()));
+                        // Se il simbolo sta alla fine del corpo
+                        if (betaList.isEmpty()) {
+                            // Aggiungo la testa solo se è diversa dal nonTerm che sto trattando attualmente
+                            if (!produzione.getTesta().equals(nonTerminale)) {
+                                struttura.addFollow(produzione.getTesta());
+                            }
+                        } else {
+                            LinkedHashSet<Terminale> firstBeta = calculateStringFirst(betaList);
+                            // Se la stringa dopo nonTerminale è annullabile
+                            if (firstBeta.contains(this.epsilon)) {
+                                // Aggiungo la testa solo se è diversa dal nonTerm che sto trattando attualmente
+                                if (!produzione.getTesta().equals(nonTerminale)) {
+                                    struttura.addFollow(produzione.getTesta());
+                                }
+                                firstBeta.remove(this.epsilon);
+                            }
+                            // Aggiungo beta (senza epsilon se c'era)
+                            struttura.addToParziale(firstBeta);
+                        }
+                    }
+                    nonTerminaleIndex++;
+                }
+
+            }
+            resultParziali.put(nonTerminale, struttura);
+
         }
 
-        for (Produzione produzione : this.grammatica.getProduzioniIfCorpoContains(nonTerminale)) {
-            Corpo corpo = produzione.getCorpo();
-            int nonTerminaleIndex = 0;
-            for (Simbolo simbolo : corpo.getSimboli()) {
-                if (simbolo.equals(nonTerminale)) {
+        boolean cambiato = true;
+        while (cambiato) {
+            cambiato = false;
 
-                    List<Simbolo> betaList = corpo.getSimboli().subList(nonTerminaleIndex + 1,
-                            corpo.getSimboli().size());
-
-                    // Passo 3: se il terminale è alla fine della stringa ed è diverso dalla testa,
-                    // inserisco Follow(Testa)
-                    if (betaList.isEmpty()) {
-                        if (!nonTerminale.equals(produzione.getTesta()) && !iniziale.equals(produzione.getTesta()))
-                            result.addAll(this.calculateFollow(produzione.getTesta(), produzione.getTesta()));
-                    } else {
-                        // Trasformo beta in array di stringhe per chiamare ParserUtility.getFirst
-                        String[] beta = new String[betaList.size()];
-                        int i = 0;
-                        for (Simbolo simb : betaList) {
-                            beta[i++] = simb.toString();
-                        }
-
-                        // calcolo la first di beta
-                        LinkedHashSet<Terminale> firstBeta = this.getFirst(beta);
-
-                        // Passo 4: se la first della stringa dopo il terminale contiene epsilon,
-                        // devo rimuoverlo per aggiungere gli altri terminali. Inoltre, devo aggiungere
-                        // Follow(Testa) se è diversa dal non terminale
-                        if (firstBeta.contains(epsilon)) {
-                            firstBeta.remove(this.epsilon);
-                            if (!produzione.getTesta().equals(nonTerminale) && !produzione.getTesta().equals(iniziale))
-                                result.addAll(this.calculateFollow(iniziale, produzione.getTesta()));
-                        }
-                        // Passo 2: se la first della stringa dopo il terminale non contiene epsilon, la
-                        // inserisco
-                        result.addAll(firstBeta);
-
-                    }
+            for (Entry<NonTerminale, StrutturaFollow> entry : resultParziali.entrySet()) {
+                LinkedHashSet<Terminale> parziale = entry.getValue().getParziale();
+                int parzialePrima = parziale.size();
+                LinkedHashSet<NonTerminale> follows = entry.getValue().getFollows();
+                for (NonTerminale nonTermToAdd : follows) {
+                    parziale.addAll(resultParziali.get(nonTermToAdd).getParziale());
                 }
-                nonTerminaleIndex++;
+                cambiato = !(parzialePrima == parziale.size());
             }
         }
 
+        // Trasferisco i risultati ottenuti nel risultato
+        for (NonTerminale nonTerminale : grammatica.getNonTerminali()) {
+            result.put(nonTerminale, resultParziali.get(nonTerminale).getParziale());
+        }
         return result;
     }
 
-    public LinkedHashSet<Terminale> getFollow(String nonTerminaleString)
-            throws IllegalArgumentException {
-        NonTerminale nonTerminale;
-        try {
-            nonTerminale = this.grammatica.getNonTermSeEsiste(nonTerminaleString);
-        } catch (IllegalArgumentException e) {
-            throw e;
-        }
-        
+    private class StrutturaFollow {
+        LinkedHashSet<Terminale> parziale;
+        LinkedHashSet<NonTerminale> follows;
 
-        return this.calculateFollow(nonTerminale, nonTerminale);
+        public StrutturaFollow(Grammatica grammatica, NonTerminale nonTerminale, Terminale FINESTRINGA) {
+            this.parziale = new LinkedHashSet<Terminale>();
+            this.follows = new LinkedHashSet<NonTerminale>();
+            if (grammatica.getPartenza().equals(nonTerminale)) {
+                this.parziale.add(FINESTRINGA);
+            }
+        }
+
+        public void addToParziale(LinkedHashSet<Terminale> terminali) {
+            this.parziale.addAll(terminali);
+        }
+
+        public void addFollow(NonTerminale nonTerminale) {
+            this.follows.add(nonTerminale);
+        }
+
+        public LinkedHashSet<Terminale> getParziale() {
+            return this.parziale;
+        }
+
+        public LinkedHashSet<NonTerminale> getFollows() {
+            return this.follows;
+        }
     }
 
+    // ! STAMPA DELLA TABELLA FIRST/FOLLOW
     public String firstFollowTable() {
 
-        List<NonTerminale> nonTerminali = new ArrayList<>(this.grammatica.getNonTerminali());
-        List<Terminale> terminali = new ArrayList<>(this.grammatica.getTerminali());
+        List<NonTerminale> nonTerminali = new LinkedList<>(this.grammatica.getNonTerminali());
+        List<Terminale> terminali = new LinkedList<>(this.grammatica.getTerminali());
         // Non calcolo first e follow di epsilon
         if (terminali.contains(this.epsilon))
             terminali.remove(this.epsilon);
@@ -280,8 +362,8 @@ public final class ParserUtility {
         for (i = 0; i < numNonTerminali; i++) {
             table[0][i + 1] = nonTerminali.get(i).toString();
             NonTerminale nonTerminale = nonTerminali.get(i);
-            String first = this.getFirst(nonTerminale.toString()).toString();
-            String follow = this.getFollow(nonTerminale.toString()).toString();
+            String first = this.getSymbolFirst(nonTerminale).toString();
+            String follow = this.getFollow(nonTerminale).toString();
             table[1][i + 1] = first;
             table[2][i + 1] = follow;
         }
@@ -289,7 +371,7 @@ public final class ParserUtility {
         for (int j = i; j < numNonTerminali + numTerminali; j++) {
             table[0][j + 1] = terminali.get(j - numNonTerminali).toString();
             Terminale terminale = terminali.get(j - numNonTerminali);
-            String first = this.getFirst(terminale.toString()).toString();
+            String first = "[" + terminale.toString() + "]";
             table[1][j + 1] = first;
             table[2][j + 1] = "-";
         }
@@ -301,7 +383,6 @@ public final class ParserUtility {
             for (int col = 0; col < numTerminali + numNonTerminali + 1; col++) {
                 result.append(table[row][col]);
                 // formattazione della tabella: aggiungo un numero di spazi dipendente dalla
-
                 for (int k = table[row][col].length(); k < 20; k++) {
                     if (k == 17)
                         result.append("|");
