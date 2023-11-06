@@ -11,11 +11,13 @@ public class ParserTopDown {
     private Grammatica grammatica;
     private ParserUtility parserUtility;
     private Terminale epsilon;
+    private boolean isLL;
 
     public ParserTopDown(Grammatica grammatica) {
         this.grammatica = grammatica;
         this.parserUtility = new ParserUtility(grammatica);
         this.epsilon = grammatica.getTermSeEsiste("eps");
+        this.isLL = true;
     }
 
     public class TopDownIndice {
@@ -88,16 +90,18 @@ public class ParserTopDown {
 
     }
 
-    public LinkedHashMap<TopDownIndice, Produzione> getParsingTable() throws Exception {
-        LinkedHashMap<TopDownIndice, Produzione> parsingTable = new LinkedHashMap<>();
+    public LinkedHashMap<TopDownIndice, LinkedList<Produzione>> getParsingTable() throws Exception {
+        LinkedHashMap<TopDownIndice, LinkedList<Produzione>> parsingTable = new LinkedHashMap<>();
 
         for (NonTerminale nonTerminale : grammatica.getNonTerminali()) {
             for (Terminale terminale : grammatica.getTerminali()) {
-                TopDownIndice indice = new TopDownIndice(terminale, nonTerminale);
-                parsingTable.put(indice, null);
+                if (!terminale.equals(this.epsilon)) {
+                    TopDownIndice indice = new TopDownIndice(terminale, nonTerminale);
+                    parsingTable.put(indice, new LinkedList<>());
+                }
             }
             TopDownIndice indice = new TopDownIndice(this.parserUtility.FINESTRINGA, nonTerminale);
-            parsingTable.put(indice, null);
+            parsingTable.put(indice, new LinkedList<>());
         }
 
         // Per ogni produzione A -> alpha in G
@@ -105,15 +109,15 @@ public class ParserTopDown {
             // Per ogni terminale a in First(alpha) diverso da epsilon inserisco A -> alpha
             // in M[A, a]
             NonTerminale testa = produzione.getTesta();
-            LinkedHashSet<Terminale> firstAlpha = this.parserUtility.calculateStringFirst(produzione.getCorpo().getSimboli());
+            LinkedHashSet<Terminale> firstAlpha = this.parserUtility
+                    .getStringFirst(produzione.getCorpo().getSimboli());
             for (Terminale terminale : firstAlpha) {
                 if (!terminale.equals(this.epsilon)) {
-                    if (parsingTable.get(new TopDownIndice(terminale, testa)) != null
-                            && !parsingTable.get(new TopDownIndice(terminale, testa)).equals(produzione)) {
-                        throw new Exception("La grammatica ha conflitti nella cella " + terminale + ";" + testa
-                                + ", impossibile eseguire il parsing");
+                    if (parsingTable.get(new TopDownIndice(terminale, testa)).size() >= 1
+                            && !parsingTable.get(new TopDownIndice(terminale, testa)).contains(produzione)) {
+                        isLL = false;
                     }
-                    parsingTable.put(new TopDownIndice(terminale, testa), produzione);
+                    parsingTable.get(new TopDownIndice(terminale, testa)).add(produzione);
                 }
             }
             // Se epsilon in First(alpha), per ogni terminale b in Follow(A)
@@ -122,34 +126,35 @@ public class ParserTopDown {
                 LinkedHashSet<Terminale> followTesta = this.parserUtility.getFollow(testa);
                 for (Terminale terminale : followTesta) {
                     if (!terminale.equals(this.parserUtility.FINESTRINGA)) {
-                        System.out.println("Contenuto attuale: " + parsingTable.get(new TopDownIndice(terminale, testa)) + " e contenuto da inserire " + produzione );
-                        if (parsingTable.get(new TopDownIndice(terminale, testa)) != null
-                                && !parsingTable.get(new TopDownIndice(terminale, testa)).equals(produzione)) {
-                            throw new Exception("La grammatica ha conflitti nella cella " + terminale + ";" + testa
-                                    + ", impossibile eseguire il parsing");
+
+                        if (parsingTable.get(new TopDownIndice(terminale, testa)).size() >= 1
+                                && !parsingTable.get(new TopDownIndice(terminale, testa)).contains(produzione)) {
+                            isLL = false;
                         }
-                        parsingTable.put(new TopDownIndice(terminale, testa), produzione);
+                        parsingTable.get(new TopDownIndice(terminale, testa)).add(produzione);
                     }
                 }
                 // Se epsilon in First(alpha) e FINESTRINGA in Follow(A), inserisco A -> alpha
                 // in M[A,FINESTRINGA]
                 if (followTesta.contains(this.parserUtility.FINESTRINGA)) {
-                    if (parsingTable.get(new TopDownIndice(this.parserUtility.FINESTRINGA, testa)) != null
+                    if (parsingTable.get(new TopDownIndice(this.parserUtility.FINESTRINGA, testa)).size() >= 1
                             && !parsingTable.get(new TopDownIndice(this.parserUtility.FINESTRINGA, testa))
-                                    .equals(produzione)) {
-                        throw new Exception("La grammatica ha conflitti nella cella " + this.parserUtility.FINESTRINGA
-                                + ";" + testa + ", impossibile eseguire il parsing");
+                                    .contains(produzione)) {
+                        isLL = false;
                     }
-                    parsingTable.put(new TopDownIndice(this.parserUtility.FINESTRINGA, testa), produzione);
+                    parsingTable.get(new TopDownIndice(this.parserUtility.FINESTRINGA, testa)).add(produzione);
                 }
             }
 
+        }
+        if (!isLL) {
+            System.out.println("La grammatica non è LL, il parsing potrebbe essere ambiguo");
         }
         return parsingTable;
     }
 
     public String getParsingTableToString() throws Exception {
-        LinkedHashMap<TopDownIndice, Produzione> parsingTable;
+        LinkedHashMap<TopDownIndice, LinkedList<Produzione>> parsingTable;
         try {
             parsingTable = getParsingTable();
 
@@ -189,11 +194,11 @@ public class ParserTopDown {
 
                 col = 1;
                 for (Terminale terminale : terminali) {
-                    Produzione produzione = parsingTable.get(new TopDownIndice(terminale, nonTerminale));
-                    if (produzione == null) {
+                    LinkedList<Produzione> produzioni = parsingTable.get(new TopDownIndice(terminale, nonTerminale));
+                    if (produzioni.size() == 0) {
                         table[row][col] = "Err.";
                     } else {
-                        table[row][col] = produzione.toString();
+                        table[row][col] = produzioni.toString();
                     }
                     col++;
                 }
@@ -206,8 +211,8 @@ public class ParserTopDown {
                     result.append(table[r][c]);
                     // formattazione della tabella: aggiungo un numero di spazi dipendente dalla
 
-                    for (int k = table[r][c].length(); k < 20; k++) {
-                        if (k == 15)
+                    for (int k = table[r][c].length(); k < 30; k++) {
+                        if (k == 25)
                             result.append("|");
                         result.append(" ");
                     }
@@ -251,11 +256,11 @@ public class ParserTopDown {
         LinkedList<Terminale> matched = new LinkedList<Terminale>();
 
         // Recupero la parsing table
-        LinkedHashMap<TopDownIndice, Produzione> parsingTable = this.getParsingTable();
+        LinkedHashMap<TopDownIndice, LinkedList<Produzione>> parsingTable = this.getParsingTable();
 
         // Finché il top dello stack è diverso da FINESTRINGA
+        System.out.println("Matched: " + matched + ", Stack: " + stack + ",Input: " + input + "\n");
         while (!stack.peek().equals(FINESTRINGA)) {
-            System.out.println("Matched: " + matched + ", Stack: " + stack + ",Input: " + input + "\n");
             // 1: se peek è uguale al primo elemento della stringa
             if (stack.peek().equals(input.get(0))) {
                 // input contiene solo terminali, quindi se sono uguali vuol dire che l'elemento
@@ -281,20 +286,24 @@ public class ParserTopDown {
             // 4: se c'è una produzione la aggiungo al risultato ed aggiungo il corpo allo
             // stack
             else {
-                Produzione produzione = parsingTable.get(new TopDownIndice(input.get(0), (NonTerminale) stack.peek()));
+                // ! IMPORTANTE: nel caso di conflitti sceglie sempre la produzione inserita per
+                // prima
+                Produzione produzione = parsingTable.get(new TopDownIndice(input.get(0), (NonTerminale) stack.peek()))
+                .get(0);
                 result.add(produzione);
                 stack.pop();
                 LinkedList<Simbolo> simboliCorpo = produzione.getCorpo().getSimboli();
-
+                
                 for (int i = simboliCorpo.size() - 1; i >= 0; i--) {
                     if (!simboliCorpo.get(i).equals(this.epsilon))
-                        stack.push(simboliCorpo.get(i));
+                    stack.push(simboliCorpo.get(i));
                 }
             }
-
+            
+            System.out.println("Matched: " + matched + ", Stack: " + stack + ",Input: " + input + "\n");
         }
-
+        
         return result;
-
+        
     }
 }

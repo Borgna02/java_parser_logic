@@ -31,6 +31,34 @@ public final class ParserUtility {
         return this.firsts.get(simbolo);
     }
 
+    public LinkedHashSet<Terminale> getStringFirst(LinkedList<Simbolo> simboli) throws IllegalArgumentException {
+
+        LinkedHashSet<Terminale> first = new LinkedHashSet<>();
+        // Controllo che l'argomento sia un insieme di simboli dell'alfabeto
+        if (simboli.size() == 0) {
+            throw new IllegalArgumentException("Argomento mancante");
+        }
+
+        // Per ogni simbolo della stringa prendo la first (che già conosco) e la
+        // aggiungo al risultato finché non trovo un simbolo la cui first non contiene
+        // epsilon
+        Iterator<Simbolo> iterator = simboli.iterator();
+        while (iterator.hasNext()) {
+            LinkedHashSet<Terminale> firstAttuale = this.getSymbolFirst(iterator.next());
+            if (!firstAttuale.contains(this.epsilon) || (!iterator.hasNext())) {
+                first.addAll(firstAttuale);
+                return first;
+            }
+            // Se contiene epsilon e non è l'ultimo carattere, rimuovo epsilon e vado avanti
+            else {
+                firstAttuale.remove(this.epsilon);
+                first.addAll(firstAttuale);
+            }
+        }
+
+        return first;
+    }
+
     public LinkedHashMap<NonTerminale, LinkedHashSet<Terminale>> getFollows() {
         return follows;
     }
@@ -44,6 +72,9 @@ public final class ParserUtility {
         LinkedHashMap<Simbolo, LinkedHashSet<Terminale>> result = new LinkedHashMap<Simbolo, LinkedHashSet<Terminale>>();
         for (NonTerminale nonTerminale : this.grammatica.getNonTerminali()) {
             result.put(nonTerminale, calculateSymbolFirst(nonTerminale));
+        }
+        for (Terminale terminale : this.grammatica.getTerminali()) {
+            result.put(terminale, calculateSymbolFirst(terminale));
         }
         return result;
     }
@@ -79,7 +110,7 @@ public final class ParserUtility {
     /**
      * Passo base per il calcolo della first di una stringa
      */
-    public LinkedHashSet<Terminale> calculateStringFirst(LinkedList<Simbolo> simboli)
+    private LinkedHashSet<Terminale> calculateStringFirst(LinkedList<Simbolo> simboli)
             throws IllegalArgumentException {
 
         // Controllo che l'argomento sia un insieme di simboli dell'alfabeto

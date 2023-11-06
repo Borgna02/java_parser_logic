@@ -35,7 +35,6 @@ public class Grammatica01senzaRic {
 
         ParserTopDown parser = new ParserTopDown(grammatica);
         try {
-            // TODO risolvere errore qua 
             System.out.println(parser.getParsingTableToString());
         } catch (Exception e) {
             e.printStackTrace();
