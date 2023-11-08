@@ -137,7 +137,7 @@ public class Grammatica {
         if (simbolo instanceof NonTerminale) {
             for (Produzione produzione : this.produzioni) {
                 if (produzione.getTesta().equals(simbolo)
-                        && !produzione.getTesta().equals(produzione.getCorpo().getSimboli().get(0))) {
+                        && !produzione.getTesta().equals(produzione.getCorpo().get(0))) {
                     result.add(produzione);
                 }
             }
@@ -148,7 +148,7 @@ public class Grammatica {
     public LinkedHashSet<Produzione> getProduzioniIfCorpoContains(Simbolo simbolo) {
         LinkedHashSet<Produzione> result = new LinkedHashSet<Produzione>();
         for (Produzione produzione : this.produzioni) {
-            if (produzione.getCorpo().getSimboli().contains(simbolo)) {
+            if (produzione.getCorpo().contains(simbolo)) {
                 result.add(produzione);
             }
         }
@@ -194,7 +194,7 @@ public class Grammatica {
                     getProduzioniByTesta(nonTerminale));
             for (Produzione produzione : produzioniByNonTerminale) {
                 // Se il nonTerminale causa una ricorsione immediata
-                if (produzione.getTesta().equals(produzione.getCorpo().getSimboli().get(0))) {
+                if (produzione.getTesta().equals(produzione.getCorpo().get(0))) {
                     isRecursive = true;
                     break;
                 }
@@ -218,9 +218,9 @@ public class Grammatica {
                     Corpo corpo = produzione.getCorpo();
 
                     // Caso 1: se A -> Aalpha
-                    if (testa.equals(corpo.getSimboli().get(0))) {
+                    if (testa.equals(corpo.get(0))) {
                         // Creo il nuovo corpo della forma A' -> alphaA'
-                        LinkedList<Simbolo> newCorpo = new LinkedList<Simbolo>(corpo.getSimboli());
+                        LinkedList<Simbolo> newCorpo = new LinkedList<Simbolo>(corpo);
                         newCorpo.remove(0);
                         newCorpo.add(newNonTerminale);
                         Produzione newProduzione = new Produzione(newNonTerminale, new Corpo(newCorpo));
@@ -229,10 +229,10 @@ public class Grammatica {
                     // Caso 2: se A -> beta
                     else {
                         // Se la prodizione ha il corpo uguale a epsilon la ignoro
-                        if(!corpo.getSimboli().contains(this.getTermSeEsiste("eps"))) {
+                        if(!corpo.contains(this.getTermSeEsiste("eps"))) {
 
                             // Creo il nuovo corpo della forma A -> betaA'
-                            LinkedList<Simbolo> newCorpo = new LinkedList<Simbolo>(corpo.getSimboli());
+                            LinkedList<Simbolo> newCorpo = new LinkedList<Simbolo>(corpo);
                             newCorpo.add(newNonTerminale);
                             Produzione newProduzione = new Produzione(testa, new Corpo(newCorpo));
                             this.produzioni.add(newProduzione);

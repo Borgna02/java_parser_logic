@@ -15,8 +15,8 @@ public class ItemSLR {
     }
 
     public Simbolo getSimboloPuntato() {
-        if (indicePuntatore < this.produzione.getCorpo().getSimboli().size()) {
-            return this.produzione.getCorpo().getSimboli().get(indicePuntatore);
+        if (indicePuntatore < this.produzione.getCorpo().size()) {
+            return this.produzione.getCorpo().get(indicePuntatore);
         } else {
             return null;
         }
@@ -27,7 +27,7 @@ public class ItemSLR {
     }
 
     public boolean shiftPuntatore() {
-        if (indicePuntatore == this.produzione.getCorpo().getSimboli().size()) {
+        if (indicePuntatore == this.produzione.getCorpo().size()) {
             return false;
         } else {
             indicePuntatore++;
@@ -38,13 +38,13 @@ public class ItemSLR {
     @Override
     public String toString() {
         String result = this.produzione.getTesta() + " -> ";
-        if (indicePuntatore >= this.produzione.getCorpo().getSimboli().size())
+        if (indicePuntatore >= this.produzione.getCorpo().size())
             return result + this.produzione.getCorpo() + ".";
-        for (int i = 0; i < this.produzione.getCorpo().getSimboli().size(); i++) {
+        for (int i = 0; i < this.produzione.getCorpo().size(); i++) {
             if (i == this.indicePuntatore) {
                 result += ".";
             }
-            result += this.produzione.getCorpo().getSimboli().get(i);
+            result += this.produzione.getCorpo().get(i);
         }
         return result;
     }

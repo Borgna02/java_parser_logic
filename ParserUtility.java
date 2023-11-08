@@ -97,7 +97,7 @@ public final class ParserUtility {
                 // rimuovo epsilon dal risultato se ho ancora simboli da valutare perché quelli
                 // successivi potrebbero essere non annullabili
                 first.addAll(this
-                        .calculateFirstPassoSuccessivo(produzione.getCorpo().getSimboli(), iniziale));
+                        .calculateFirstPassoSuccessivo(produzione.getCorpo(), iniziale));
             }
         }
         // Se il simbolo è un terminale, allora ho terminato ed esco
@@ -136,7 +136,7 @@ public final class ParserUtility {
 
                 for (Produzione produzione : produzioni) {
                     LinkedHashSet<Terminale> firstAttuale = this
-                            .calculateFirstPassoSuccessivo(produzione.getCorpo().getSimboli(), simboli);
+                            .calculateFirstPassoSuccessivo(produzione.getCorpo(), simboli);
                     // rimuovo epsilon dal risultato se ho ancora simboli da valutare perché quelli
                     // successivi potrebbero essere non annullabili
                     if (firstAttuale.contains(this.epsilon) && iterator.hasNext()) {
@@ -214,12 +214,12 @@ public final class ParserUtility {
                     // per ognuna delle produzioni, recupero il corpo
                     Corpo corpo = produzione.getCorpo();
                     // se il corpo è epsilon, aggiungo epsilon alla first
-                    if (corpo.getSimboli().size() == 1
-                            && corpo.getSimboli().contains(this.epsilon))
+                    if (corpo.size() == 1
+                            && corpo.contains(this.epsilon))
                         first.add(this.epsilon);
                     // altrimenti aggiungo alla first totale la first del corpo
                     else {
-                        first.addAll(this.calculateFirstPassoSuccessivo(corpo.getSimboli(), simboli));
+                        first.addAll(this.calculateFirstPassoSuccessivo(corpo, simboli));
 
                     }
                 }
@@ -292,11 +292,11 @@ public final class ParserUtility {
                 // l'ultimo simbolo del corpo, inserisco Follow(testa)
                 Corpo corpo = produzione.getCorpo();
                 int nonTerminaleIndex = 0;
-                for (Simbolo simbolo : corpo.getSimboli()) {
+                for (Simbolo simbolo : corpo) {
                     if (simbolo.equals(nonTerminale)) {
                         LinkedList<Simbolo> betaList = new LinkedList<>(
-                                corpo.getSimboli().subList(nonTerminaleIndex + 1,
-                                        corpo.getSimboli().size()));
+                                corpo.subList(nonTerminaleIndex + 1,
+                                        corpo.size()));
                         // Se il simbolo sta alla fine del corpo
                         if (betaList.isEmpty()) {
                             // Aggiungo la testa solo se è diversa dal nonTerm che sto trattando attualmente

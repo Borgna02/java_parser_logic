@@ -1,18 +1,16 @@
 package Implementazione;
 import java.util.LinkedList;
 
-public class Corpo {
-    private LinkedList<Simbolo> simboli;
+public class Corpo extends LinkedList<Simbolo> {
 
     public Corpo(LinkedList<Simbolo> simboli) {
-        this.simboli = simboli;
+        this.addAll(simboli);
     }
 
     // Costruttore con i simboli
     public Corpo(Simbolo... simboli) {
-        this.simboli = new LinkedList<Simbolo>();
-        for (Simbolo s : simboli) {
-            this.simboli.add(s);
+        for (Simbolo simbolo : simboli) {
+            this.add(simbolo);
         }
     }
 
@@ -29,7 +27,6 @@ public class Corpo {
      * 
      */
     public Corpo(Grammatica grammatica, String... stringhe) throws IllegalArgumentException {
-        this.simboli = new LinkedList<Simbolo>();
         for (String s : stringhe) {
             Simbolo simbolo = grammatica.getTermSeEsiste(s);
             // se s non è un terminale
@@ -43,34 +40,24 @@ public class Corpo {
             // se s non è neanche non terminale
             if (simbolo == null)
                 throw new IllegalArgumentException("Almeno uno dei simboli indicati non esiste: " + s);
-            simboli.add(simbolo);
+            this.add(simbolo);
         }
     }
 
-    public LinkedList<Simbolo> getSimboli() {
-        return simboli;
-    }
+    
 
-    public void setSimboli(LinkedList<Simbolo> simboli) {
-        this.simboli = simboli;
-    }
+    
 
     @Override
     public String toString() {
         String result = "";
-        for (Simbolo s : this.simboli) {
+        for (Simbolo s : this) {
             result += s;
         }
         return result;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((simboli == null) ? 0 : simboli.hashCode());
-        return result;
-    }
+
 
     @Override
     public boolean equals(Object obj) {
@@ -81,18 +68,15 @@ public class Corpo {
         if (getClass() != obj.getClass())
             return false;
         Corpo other = (Corpo) obj;
-        if (simboli == null) {
-            if (other.simboli != null)
-                return false;
-        } else if (!simboli.equals(other.simboli))
+        if (!this.equals(other))
             return false;
         return true;
     }
 
     public String[] toStrings() {
-        String[] result = new String[this.simboli.size()];
+        String[] result = new String[this.size()];
         int i = 0;
-        for (Simbolo simbolo : this.simboli) {
+        for (Simbolo simbolo : this) {
             result[i] = simbolo.toString();
             i++;   
         }

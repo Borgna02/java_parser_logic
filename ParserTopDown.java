@@ -24,7 +24,7 @@ public class ParserTopDown {
         private Terminale terminale;
         private NonTerminale nonTerminale;
 
-        TopDownIndice(Terminale terminale, NonTerminale nonTerminale) {
+        public TopDownIndice(Terminale terminale, NonTerminale nonTerminale) {
             this.terminale = terminale;
             this.nonTerminale = nonTerminale;
         }
@@ -110,7 +110,7 @@ public class ParserTopDown {
             // in M[A, a]
             NonTerminale testa = produzione.getTesta();
             LinkedHashSet<Terminale> firstAlpha = this.parserUtility
-                    .getStringFirst(produzione.getCorpo().getSimboli());
+                    .getStringFirst(produzione.getCorpo());
             for (Terminale terminale : firstAlpha) {
                 if (!terminale.equals(this.epsilon)) {
                     if (parsingTable.get(new TopDownIndice(terminale, testa)).size() >= 1
@@ -290,7 +290,7 @@ public class ParserTopDown {
                         .get(0);
                 result.add(produzione);
                 stack.pop();
-                LinkedList<Simbolo> simboliCorpo = produzione.getCorpo().getSimboli();
+                LinkedList<Simbolo> simboliCorpo = produzione.getCorpo();
 
                 for (int i = simboliCorpo.size() - 1; i >= 0; i--) {
                     if (!simboliCorpo.get(i).equals(this.epsilon))
