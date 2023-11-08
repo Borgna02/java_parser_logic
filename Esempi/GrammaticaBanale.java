@@ -3,8 +3,6 @@
 
 import Implementazione.Corpo;
 import Implementazione.Grammatica;
-import Implementazione.ItemSLR;
-import Implementazione.ItemSet;
 import Implementazione.ParserSLR;
 
 public class GrammaticaBanale {
@@ -28,9 +26,7 @@ public class GrammaticaBanale {
         System.out.println(grammatica);
         ParserSLR parser = new ParserSLR(grammatica);
 
-        // parser.getAutomaLR0();
         System.out.println(parser.getAutomaLR0ToString());
-        // System.out.println(parser.getAutomaLR0());
 
     }
 }

@@ -2,6 +2,7 @@ package Implementazione.Esempi;
 
 import Implementazione.Corpo;
 import Implementazione.Grammatica;
+import Implementazione.ParserSLR;
 import Implementazione.ParserTopDown;
 import Implementazione.ParserUtility;
 
@@ -33,5 +34,7 @@ public class Grammatica01senzaRic {
         System.out.println(parserUtility.firstFollowTable());
         ParserTopDown parser = new ParserTopDown(grammatica);
         System.out.println(parser.getParsingTableToString());
+        ParserSLR parserSLR = new ParserSLR(grammatica);
+        System.out.println(parserSLR.getAutomaLR0ToString());
     }
 }

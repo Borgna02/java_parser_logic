@@ -59,19 +59,7 @@ public class Corpo extends LinkedList<Simbolo> {
 
 
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Corpo other = (Corpo) obj;
-        if (!this.equals(other))
-            return false;
-        return true;
-    }
+   
 
     public String[] toStrings() {
         String[] result = new String[this.size()];

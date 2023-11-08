@@ -178,7 +178,6 @@ public class ParserSLR {
                 }
             }
 
-            System.out.println(indiceAttuale.getItemSetIndex() + ": " + automa.get(indiceAttuale) + "\n");
             // Se non ho aggiunto nuovi stati e sono arrivato all'ultimo, ho finito
             if (indiceAttuale.getItemSetIndex() == indiceUltimaAggiunta) {
                 break;
@@ -213,7 +212,6 @@ public class ParserSLR {
         for (SLRindice indice : automa.keySet()) {
             numItems += indice.getItemSet().size();
         }
-        System.out.println(numItems);
 
         // Devo costruire una tabella che ha per colonne i simboli e per righe gli
         // itemSet dell'automa
@@ -227,7 +225,6 @@ public class ParserSLR {
 
         // Riempio le intestazioni
         int col = 2;
-        System.out.println(alfabeto);
         for (Simbolo simbolo : alfabeto) {
             table[0][col] = simbolo.toString();
             col++;
