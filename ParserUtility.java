@@ -12,7 +12,7 @@ public final class ParserUtility {
     public final Terminale FINESTRINGA = new Terminale("$");
     private Grammatica grammatica;
     private Terminale epsilon;
-    private LinkedHashMap<Simbolo, LinkedHashSet<Terminale>> firsts;
+    private LinkedHashMap<Simbolo, LinkedHashSet<Terminale>> firsts = new LinkedHashMap<>();
     private LinkedHashMap<NonTerminale, LinkedHashSet<Terminale>> follows;
 
     public ParserUtility(Grammatica grammatica) {
@@ -219,7 +219,7 @@ public final class ParserUtility {
                         first.add(this.epsilon);
                     // altrimenti aggiungo alla first totale la first del corpo
                     else {
-                        first.addAll(this.calculateFirstPassoSuccessivo(corpo.getSimboli(), iniziale));
+                        first.addAll(this.calculateFirstPassoSuccessivo(corpo.getSimboli(), simboli));
 
                     }
                 }
@@ -242,7 +242,15 @@ public final class ParserUtility {
             // risultato, quindi vedo se contiene epsilon
             LinkedList<Simbolo> newSimbolo = new LinkedList<Simbolo>();
             newSimbolo.add(simbolo);
-            LinkedHashSet<Terminale> first_attuale = this.calculateFirstPassoSuccessivo(newSimbolo, iniziale);
+            LinkedHashSet<Terminale> first_attuale;
+            if (this.firsts.containsKey(simbolo)) {
+                first_attuale = this.getFirsts().get(simbolo);
+            } else {
+                // Se non conosco già la first di quel simbolo, la calcolo e la inserisco nelle
+                // first migliorando l'efficienza perché la posso facilmente recuperare per i prossimi utilizzi
+                first_attuale = this.calculateFirstPassoSuccessivo(newSimbolo, simboli);
+                this.firsts.put(simbolo, first_attuale);
+            }
             // se non contiene epsilon, allora la variabile non è annullabile ed ho concluso
             if (!first_attuale.contains(this.epsilon)) {
                 first.addAll(first_attuale);
