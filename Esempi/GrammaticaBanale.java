@@ -1,9 +1,9 @@
 ﻿package Implementazione.Esempi;
 
 
-import Implementazione.Corpo;
-import Implementazione.Grammatica;
-import Implementazione.ParserSLR;
+import Implementazione.Domain.Corpo;
+import Implementazione.Domain.Grammatica;
+import Implementazione.Parser.ParserBottomUp.ParserSLR.ParserSLR;
 
 public class GrammaticaBanale {
     public static void main(String[] args) {
@@ -23,10 +23,8 @@ public class GrammaticaBanale {
         // B -> eps
         grammatica.addProduzione("B", new Corpo(grammatica, "eps"));
 
-        System.out.println(grammatica);
         ParserSLR parser = new ParserSLR(grammatica);
 
-        System.out.println(parser.getAutomaLR0ToString());
 
     }
 }

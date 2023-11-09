@@ -1,9 +1,9 @@
 package Implementazione.Esempi;
 
-import Implementazione.Corpo;
-import Implementazione.Grammatica;
-import Implementazione.ParserTopDown;
-import Implementazione.ParserUtility;
+import Implementazione.Domain.Corpo;
+import Implementazione.Domain.Grammatica;
+import Implementazione.Parser.ParserUtility;
+import Implementazione.Parser.ParserTopDown.ParserTopDown;
 
 public class GrammaticaEsercitazione06_11 {
     public static void main(String[] args) {

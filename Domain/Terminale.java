@@ -1,4 +1,4 @@
-package Implementazione;
+package Implementazione.Domain;
 public class Terminale implements Simbolo{
     private String terminale;
 

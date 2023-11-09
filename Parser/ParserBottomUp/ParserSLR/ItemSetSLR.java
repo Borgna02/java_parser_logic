@@ -1,15 +1,16 @@
-﻿package Implementazione;
+﻿package Implementazione.Parser.ParserBottomUp.ParserSLR;
 
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 
-public class ItemSet extends LinkedHashSet<ItemSLR> {
+import Implementazione.Domain.Simbolo;
 
-    public ItemSet() {
+public class ItemSetSLR extends LinkedHashSet<ItemSLR> {
+
+    public ItemSetSLR() {
         super();
     }
 
-    public ItemSet(ItemSLR item) {
+    public ItemSetSLR(ItemSLR item) {
         this.add(item);
     }
 
@@ -28,10 +29,20 @@ public class ItemSet extends LinkedHashSet<ItemSLR> {
         return result;
     }
 
-    public ItemSet getItemsBySimboloPuntato(Simbolo simboloPuntato) {
-        ItemSet items = new ItemSet();
+    public ItemSetSLR getItemsBySimboloPuntato(Simbolo simboloPuntato) {
+        ItemSetSLR items = new ItemSetSLR();
         for (ItemSLR item : this) {
             if (item.getSimboloPuntato().equals(simboloPuntato)) {
+                items.add(item);
+            }
+        }
+        return items;
+    }
+
+    public ItemSetSLR getItemsByPuntatoreAllaFine() {
+        ItemSetSLR items = new ItemSetSLR();
+        for (ItemSLR item : this) {
+            if(item.getSimboloPuntato() == null || item.getSimboloPuntato().toString().equals("eps")) {
                 items.add(item);
             }
         }

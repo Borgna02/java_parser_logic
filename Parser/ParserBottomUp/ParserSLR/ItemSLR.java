@@ -1,4 +1,7 @@
-﻿package Implementazione;
+﻿package Implementazione.Parser.ParserBottomUp.ParserSLR;
+
+import Implementazione.Domain.Produzione;
+import Implementazione.Domain.Simbolo;
 
 public class ItemSLR {
 

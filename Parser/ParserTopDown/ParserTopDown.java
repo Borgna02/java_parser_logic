@@ -1,10 +1,17 @@
-package Implementazione;
+package Implementazione.Parser.ParserTopDown;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
+
+import Implementazione.Domain.Grammatica;
+import Implementazione.Domain.NonTerminale;
+import Implementazione.Domain.Produzione;
+import Implementazione.Domain.Simbolo;
+import Implementazione.Domain.Terminale;
+import Implementazione.Parser.ParserUtility;
 
 public class ParserTopDown {
 
@@ -100,7 +107,7 @@ public class ParserTopDown {
                     parsingTable.put(indice, new LinkedList<>());
                 }
             }
-            TopDownIndice indice = new TopDownIndice(this.parserUtility.FINESTRINGA, nonTerminale);
+            TopDownIndice indice = new TopDownIndice(ParserUtility.FINESTRINGA, nonTerminale);
             parsingTable.put(indice, new LinkedList<>());
         }
 
@@ -125,7 +132,7 @@ public class ParserTopDown {
             if (firstAlpha.contains(this.epsilon)) {
                 LinkedHashSet<Terminale> followTesta = this.parserUtility.getFollow(testa);
                 for (Terminale terminale : followTesta) {
-                    if (!terminale.equals(this.parserUtility.FINESTRINGA)) {
+                    if (!terminale.equals(ParserUtility.FINESTRINGA)) {
 
                         if (parsingTable.get(new TopDownIndice(terminale, testa)).size() >= 1
                                 && !parsingTable.get(new TopDownIndice(terminale, testa)).contains(produzione)) {
@@ -136,13 +143,13 @@ public class ParserTopDown {
                 }
                 // Se epsilon in First(alpha) e FINESTRINGA in Follow(A), inserisco A -> alpha
                 // in M[A,FINESTRINGA]
-                if (followTesta.contains(this.parserUtility.FINESTRINGA)) {
-                    if (parsingTable.get(new TopDownIndice(this.parserUtility.FINESTRINGA, testa)).size() >= 1
-                            && !parsingTable.get(new TopDownIndice(this.parserUtility.FINESTRINGA, testa))
+                if (followTesta.contains(ParserUtility.FINESTRINGA)) {
+                    if (parsingTable.get(new TopDownIndice(ParserUtility.FINESTRINGA, testa)).size() >= 1
+                            && !parsingTable.get(new TopDownIndice(ParserUtility.FINESTRINGA, testa))
                                     .contains(produzione)) {
                         isLL = false;
                     }
-                    parsingTable.get(new TopDownIndice(this.parserUtility.FINESTRINGA, testa)).add(produzione);
+                    parsingTable.get(new TopDownIndice(ParserUtility.FINESTRINGA, testa)).add(produzione);
                 }
             }
 
@@ -170,7 +177,7 @@ public class ParserTopDown {
                 terminali.add(terminale);
             }
         }
-        terminali.add(this.parserUtility.FINESTRINGA);
+        terminali.add(ParserUtility.FINESTRINGA);
 
         LinkedHashSet<NonTerminale> nonTerminali = this.grammatica.getNonTerminali();
         StringBuilder result = new StringBuilder();
@@ -229,7 +236,7 @@ public class ParserTopDown {
     public List<Produzione> parsing(String... strings) throws Exception {
         LinkedList<Terminale> input = new LinkedList<Terminale>();
         LinkedList<Produzione> result = new LinkedList<Produzione>();
-        final Terminale FINESTRINGA = this.parserUtility.FINESTRINGA;
+        final Terminale FINESTRINGA = ParserUtility.FINESTRINGA;
 
         // Controllo che l'input sia insieme di terminali
         for (String str : strings) {

@@ -1,4 +1,4 @@
-package Implementazione;
+package Implementazione.Parser;
 
 import java.util.LinkedList;
 import java.util.Iterator;
@@ -7,9 +7,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
 
+import Implementazione.Domain.*;
+
 public final class ParserUtility {
 
-    public final Terminale FINESTRINGA = new Terminale("$");
+    public static final Terminale FINESTRINGA = new Terminale("$");
     private Grammatica grammatica;
     private Terminale epsilon;
     private LinkedHashMap<Simbolo, LinkedHashSet<Terminale>> firsts = new LinkedHashMap<>();

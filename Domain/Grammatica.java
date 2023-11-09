@@ -1,4 +1,4 @@
-package Implementazione;
+package Implementazione.Domain;
 
 import java.util.LinkedList;
 import java.util.Iterator;

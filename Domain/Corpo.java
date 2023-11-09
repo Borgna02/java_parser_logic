@@ -1,4 +1,4 @@
-package Implementazione;
+package Implementazione.Domain;
 import java.util.LinkedList;
 
 public class Corpo extends LinkedList<Simbolo> {

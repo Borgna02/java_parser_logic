@@ -1,16 +1,16 @@
 package Implementazione.Esempi;
 
-import Implementazione.Corpo;
-import Implementazione.Grammatica;
-import Implementazione.ParserSLR;
-import Implementazione.ParserTopDown;
-import Implementazione.ParserUtility;
+import Implementazione.Domain.Corpo;
+import Implementazione.Domain.Grammatica;
+import Implementazione.Parser.ParserUtility;
+import Implementazione.Parser.ParserBottomUp.ParserSLR.ParserSLR;
+import Implementazione.Parser.ParserTopDown.ParserTopDown;
 
 public class Grammatica01senzaRic {
 
     public static void main(String[] args) {
         Grammatica grammatica = new Grammatica();
-        grammatica.setTerminali("0", "1", "eps");
+        grammatica.setTerminali("1", "0", "eps");
         grammatica.setNonTerminali("S", "A", "A'");
         grammatica.setPartenza(grammatica.getNonTermSeEsiste("S"));
 
@@ -29,12 +29,10 @@ public class Grammatica01senzaRic {
         // A' -> eps
         grammatica.addProduzione("A'", new Corpo(grammatica, "eps"));
 
-        System.out.println(grammatica);
         ParserUtility parserUtility = new ParserUtility(grammatica);
-        System.out.println(parserUtility.firstFollowTable());
         ParserTopDown parser = new ParserTopDown(grammatica);
-        System.out.println(parser.getParsingTableToString());
         ParserSLR parserSLR = new ParserSLR(grammatica);
         System.out.println(parserSLR.getAutomaLR0ToString());
+
     }
 }

@@ -1,4 +1,4 @@
-package Implementazione;
+package Implementazione.Domain;
 public class Produzione {
     NonTerminale testa;
     Corpo corpo;
