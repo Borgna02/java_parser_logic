@@ -30,9 +30,12 @@ public class Grammatica01senzaRic {
         grammatica.addProduzione("A'", new Corpo(grammatica, "eps"));
 
         ParserUtility parserUtility = new ParserUtility(grammatica);
+        System.out.println(parserUtility.firstFollowTable());
         ParserTopDown parser = new ParserTopDown(grammatica);
+        System.out.println(parser.getParsingTable());
         ParserSLR parserSLR = new ParserSLR(grammatica);
-        System.out.println(parserSLR.getAutomaLR0ToString());
+        System.out.println(parserSLR.getAutomaLR0());
+        System.out.println(parserSLR.getParsingTableLR0());
 
     }
 }

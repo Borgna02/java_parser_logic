@@ -24,6 +24,7 @@ public class GrammaticaBanale {
         grammatica.addProduzione("B", new Corpo(grammatica, "eps"));
 
         ParserSLR parser = new ParserSLR(grammatica);
+        System.out.println(parser.getParsingTableLR0());
 
 
     }

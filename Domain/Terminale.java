@@ -1,5 +1,5 @@
 package Implementazione.Domain;
-public class Terminale implements Simbolo{
+public class Terminale implements Simbolo, Comparable<Terminale>{
     private String terminale;
 
     public Terminale(String terminale) {
@@ -24,5 +24,9 @@ public class Terminale implements Simbolo{
         return this.terminale.toString().equals(obj.toString());
     }
     
+    @Override
+    public int compareTo(Terminale o) {
+        return this.terminale.compareTo(o.terminale);
+    }
 
 }

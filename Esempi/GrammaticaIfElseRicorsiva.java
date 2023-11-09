@@ -32,7 +32,7 @@ public class GrammaticaIfElseRicorsiva {
         ParserUtility parserUtility = new ParserUtility(grammatica);
         System.out.println(parserUtility.firstFollowTable());
         ParserTopDown parserTopDown = new ParserTopDown(grammatica);
-        System.out.println(parserTopDown.getParsingTableToString());
+        System.out.println(parserTopDown.getParsingTable());
 
     }
 }
