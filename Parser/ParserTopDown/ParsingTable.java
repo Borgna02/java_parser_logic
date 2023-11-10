@@ -47,7 +47,7 @@ public class ParsingTable extends LinkedHashMap<NonTerminale, LinkedHashMap<Term
         int row = 1;
         for (NonTerminale nonTerminale : nonTerminali) {
             for (int i = 0; i < numColonne; i++) {
-                table[row][i] = "-------------------------------------";
+                table[row][i] = "---------------------------";
             }
             row++;
             table[row][0] = nonTerminale.toString();
@@ -60,7 +60,7 @@ public class ParsingTable extends LinkedHashMap<NonTerminale, LinkedHashMap<Term
                 } else {
                     String entry = "";
                     for (Produzione produzione : produzioni) {
-                        entry += "-> " + produzione.getCorpo() + ", ";
+                        entry += produzione.getCorpo() + ", ";
                     }
                     table[row][col] = entry.substring(0, entry.length() - 2);;
                 }
@@ -76,8 +76,8 @@ public class ParsingTable extends LinkedHashMap<NonTerminale, LinkedHashMap<Term
                 result.append(entry);
                 // formattazione della tabella: aggiungo un numero di spazi dipendente dalla
 
-                for (int k = entry.length(); k < 35; k++) {
-                    if (k == 33)
+                for (int k = entry.length(); k < 25; k++) {
+                    if (k == 22)
                         result.append("|");
                     result.append(" ");
                 }

@@ -80,9 +80,14 @@ public class ParserSLR {
             // Calcolo delle reduce della riga
             ItemSetSLR itemsConPuntatoreAllaFine = indiceRiga.getItemSet().getItemsByPuntatoreAllaFine();
             for (ItemSLR item : itemsConPuntatoreAllaFine) {
-                for (Terminale terminale : this.parserUtility.getFollow(item.getProduzione().getTesta())) {
-                    table.get(indiceRiga).get(terminale)
-                            .add(new Action(ActionType.REDUCE, this.produzioniOrdinate.get(item.getProduzione())));
+                if(item.getProduzione().equals(getProduzionePartenza())) {
+                    table.get(indiceRiga).get(ParserUtility.FINESTRINGA).add(new Action(ActionType.ACCEPT, null));
+                } else {
+
+                    for (Terminale terminale : this.parserUtility.getFollow(item.getProduzione().getTesta())) {
+                        table.get(indiceRiga).get(terminale)
+                        .add(new Action(ActionType.REDUCE, this.produzioniOrdinate.get(item.getProduzione())));
+                    }
                 }
             }
         }
@@ -156,9 +161,9 @@ public class ParserSLR {
 
     private Grammatica calculateGrammaticaAumentata(Grammatica grammatica) {
         Grammatica grammaticaAumentata = new Grammatica();
-        grammaticaAumentata.setProduzioni(grammatica.getProduzioni());
-        grammaticaAumentata.setTerminali(grammatica.getTerminali());
-        grammaticaAumentata.setNonTerminali(grammatica.getNonTerminali());
+        grammaticaAumentata.setProduzioni(new LinkedHashSet<>(grammatica.getProduzioni()));
+        grammaticaAumentata.setTerminali(new LinkedHashSet<>(grammatica.getTerminali()));
+        grammaticaAumentata.setNonTerminali(new LinkedHashSet<>(grammatica.getNonTerminali()));
         // Aggiungo il nuovo simbolo e la nuova produzione
         // Lo indico con * per non andare in conflitto con eventuali simboli secondi
         grammaticaAumentata.addNonTerminale(grammatica.getPartenza().toString() + "*");

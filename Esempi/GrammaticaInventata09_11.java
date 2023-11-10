@@ -3,6 +3,7 @@
 import Implementazione.Domain.Corpo;
 import Implementazione.Domain.Grammatica;
 import Implementazione.Parser.ParserUtility;
+import Implementazione.Parser.ParserBottomUp.ParserSLR.ParserSLR;
 import Implementazione.Parser.ParserTopDown.ParserTopDown;
 
 public class GrammaticaInventata09_11 {
@@ -33,5 +34,10 @@ public class GrammaticaInventata09_11 {
         System.out.println(utility.firstFollowTable());
         ParserTopDown parser = new ParserTopDown(grammatica);
         System.out.println(parser.getParsingTable());
+        ParserSLR parserSLR = new ParserSLR(grammatica);
+        System.out.println(parserSLR.getAutomaLR0());
+        System.out.println(parserSLR.getParsingTableLR0());
+
+        
     }   
 }
